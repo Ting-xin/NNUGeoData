@@ -5,11 +5,11 @@
 长三角数据中心网址：http://nnu.geodata.cn:8008/
 
 将长三角数据中心的数据更好的应用到模型中。由于数据根本用不起来，考虑复制部分数据到程序中，然后先把这个模式走通
-适用的 vue/cli3，组件地址： https://element-plus.gitee.io/zh-CN/ (vue/cli3 写法有变动，不懂的多看文档或者Google)
+使用的 vue/cli3，Element 组件地址： https://element-plus.gitee.io/zh-CN/ (vue/cli3 写法有变动，不懂的多看文档或者Google)
 
 ## 步骤
 
-1. 把大概页面创建好
+1. 把大概页面创建好，可以参考参与式平台
 
    参考参与式平台的 [个人空间](https://geomodeling.njnu.edu.cn/PExploration/newPersonalPage/tool)，不需要有用户的创建登录
 
