@@ -16,14 +16,19 @@ service.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+
 // 返回响应数据拦截
 service.interceptors.response.use((res) => {
     const data = res.data;
     // 状态码为 2xx 范围时都会调用该函数，处理响应数据
-    if (res.status === 200) {
+    if (res.status === 200 && data.code == 0) {
         const code = data.code;
         return Promise.resolve(data);
     }
+    let errCodeList = ['后台代码出现错误', '没有参数', '参数错误', '资源未找到']
+
+    console.log("error: ", errCodeList[data.code - 1])
+    return Promise.reject(errCodeList[data.code - 1])
 }, (error) => {
     if (error.response.status) {
         // 状态码超过 2xx 范围时都会调用该函数，处理错误响应

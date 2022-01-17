@@ -3,53 +3,50 @@
     <el-col :span="24" class="register-back">
       <el-card class="register">
         <el-form
-          ref="registerFormRef"
-          :model="registerForm"
+          ref="ruleFormRef"
+          :model="ruleForm"
           :rules="rules"
           status-icon
           label-width="100px"
           size="medium"
         >
-          <el-form-item label="用户名" prop="account">
+          <el-form-item label="用户名" prop="name">
             <el-input
               type="text"
-              v-model="registerForm.name"
+              v-model="ruleForm.name"
               autocomplete="off"
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="密码" prop="pass">
+          <el-form-item label="密码" prop="password">
             <el-input
               type="password"
-              v-model="registerForm.password"
+              v-model="ruleForm.password"
               autocomplete="off"
             ></el-input>
           </el-form-item>
 
-          <el-form-item label="重复密码" prop="checkPassword">
+          <el-form-item label="重复密码" prop="checkPass">
             <el-input
               type="password"
-              v-model="registerForm.checkPass"
+              v-model="ruleForm.checkPass"
               autocomplete="off"
             ></el-input>
           </el-form-item>
 
           <el-form-item label="邮箱" prop="email">
-            <el-input v-model="registerForm.email"></el-input>
+            <el-input v-model="ruleForm.email"></el-input>
           </el-form-item>
 
           <el-form-item label="机构" prop="institution">
-            <el-input v-model="registerForm.institution"></el-input>
+            <el-input v-model="ruleForm.institution"></el-input>
           </el-form-item>
 
           <el-form-item>
-            <el-button type="info" @click="resetForm('ruleForm')" size="medium"
-              >重置错误信息</el-button
+            <el-button type="info" @click="resetForm(ruleFormRef)" size="medium"
+              >重置</el-button
             >
-            <el-button
-              type="primary"
-              @click="submit('registerForm')"
-              size="medium"
+            <el-button type="primary" @click="submit(ruleFormRef)" size="medium"
               >注册</el-button
             >
             <el-button type="success" @click="toLoginPage()" size="medium"
@@ -63,111 +60,142 @@
 </template>
 
 <script>
-import { ref, defineComponent, reactive, unref} from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
 
-import { register } from '@/plugins/axios/api'
-
-import {
-  validate30Length,
-  validateEmail,
-  validatePassword,
-} from "@/utils/validate";
+import { register } from "@/plugins/axios/api";
 
 export default {
   name: "register",
   setup(props, { refs, root }) {
     // 表单绑定数据
-    const registerForm = reactive({
+    const ruleForm = reactive({
       name: "",
       password: "",
       checkPass: "",
       email: "",
       institution: "",
     });
+    const ruleFormRef = ref();
     const router = useRouter();
 
     /**
      * 表单验证
      */
-    let checkName = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error("用户名不能为空"));
-      }
-      if (validate30Length(value)) {
-        callback(new Error("用户名不能超过 30 个字符"));
+    const validatePass = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入密码"));
       } else {
+        if (ruleForm.checkPass !== "") {
+          if (!ruleFormRef.value) return;
+          ruleFormRef.value.validateField("checkPass", () => null);
+        }
         callback();
       }
     };
-    let checkEmail = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error("邮箱不能为空"));
-      }
-      if (validateEmail(value)) {
-        callback(new Error("请输入正确的邮箱"));
-      } else {
-        callback();
-      }
-    };
-    let checkPassword = (rule, value, callback) => {
-      console.log(strpscript(value));
-      if (!value) {
-        callback(new Error("密码不能为空"));
-      }
-      if (validatePassword(value)) {
-        callback(new Error("密码为 6-20位，包含大小写字母和数字"));
-      } else {
-        callback();
-      }
-    };
-    let checkPassword2 = (rule, vlaue, callback) => {
-      if (this.registerForm.password != this.registerForm.checkPass) {
-        callback(new Error("密码与重复密码不相同"));
-      } else {
-        callback();
-      }
-    };
-    let checkInstitution = (rule, value, callback) => {
-      if (value.length > 50) {
-        callback(new Error("机构名不能超过 50 个字符"));
+    const validatePass2 = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入重复密码"));
+      } else if (value !== ruleForm.password) {
+        callback(new Error("重复密码和密码不相同"));
       } else {
         callback();
       }
     };
     const rules = reactive({
-      name: [{ validator: checkName, trigger: "blur" }],
-      password: [{ validator: checkPassword, trigger: "blur" }],
-      checkPass: [{ validator: checkPassword2, trigger: "blur" }],
-      email: [{ validator: checkEmail, trigger: "blur" }],
-      institution: [{ validator: checkInstitution, trigger: "blur" }],
+      name: [
+        {
+          required: true,
+          message: "请输入用户名",
+          trigger: "blur",
+        },
+        {
+          max: 30,
+          message: "用户名最长不超过 30 个字符",
+          trigger: "blur",
+        },
+      ],
+      password: [
+        {
+          required: true,
+          message: "请输入密码",
+          trigger: "blur",
+        },
+        { validator: validatePass, trigger: "blur" },
+      ],
+      checkPass: [
+        {
+          required: true,
+          message: "请输入重复密码",
+          trigger: "blur",
+        },
+        { validator: validatePass2, trigger: "blur" },
+      ],
+      email: [
+        {
+          required: true,
+          message: "请输入邮箱",
+          trigger: "blur",
+        },
+        {
+          type: "email",
+          message: "请输入正确的邮箱",
+          trigger: ["blur", "change"],
+        },
+      ],
+      institution: [
+        {
+          max: 200,
+          message: "机构名最长不超过 200 个字符",
+          trigger: "blur",
+        },
+      ],
     });
 
-    const resetForm = formName => {
-      refs(formName).resetFields();
+    const resetForm = (formEl) => {
+      if (!formEl) return;
+      formEl.resetFields();
     };
     const toLoginPage = () => {
       router.push("/login");
     };
-    const submit = () => {
-      console.log("register");
-      let requestData = {
-        name: registerForm.name,
-        password: registerForm.password,
-        institution: registerForm.institution
-      };
-      console.log(requestData);
-      register(requestData)
-        .then(response => {
-          toLoginPage()
-        })
-        .catch(error => {
-        });
+    const submit = (formEl) => {
+      console.log("register submit: ", formEl);
+      if (!formEl) return;
+      formEl.validate((valid) => {
+        if (valid) {
+          let data = {
+            name: ruleForm.name,
+            password: ruleForm.password,
+            institution: ruleForm.institution,
+          };
+          register(data)
+            .then((response) => {
+              console.log("response: ", response);
+              ElMessage({
+                message: "注册用户成功",
+                type: "success",
+              });
+              toLoginPage();
+            })
+            .catch((error) => {
+              ElMessage({
+                message: "注册用户失败: " + error,
+                type: "error",
+              });
+            });
+        } else {
+          ElMessage("请先通过验证");
+          return false;
+        }
+      });
     };
 
     return {
-      registerForm,
       rules,
+      ruleForm,
+      ruleFormRef,
       submit,
       resetForm,
       toLoginPage,

@@ -19,3 +19,8 @@ import qs from 'qs'
 export function register(data) {
     return service.post('/user', data)
 }
+
+// 登录
+export function login(data) {
+    return service.post('/user/login', data)
+}
