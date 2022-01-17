@@ -2,21 +2,25 @@
   <el-container>
     <el-heander>
       <el-menu
-        :default-active="activeIndex2"
         class="el-menu-demo"
         mode="horizontal"
-        background-color="#545c64"
+        background-color="#f5f5f5"
         text-color="#fff"
         active-text-color="#ffd04b"
         @select="handleSelect"
       >
-        <el-image style='width: 200px' :src="imgUrl" fit="scale-down"></el-image>
+        <el-image style='width: 360px' :src="imgUrl" fit="scale-down"></el-image>
         <span class="border-style"></span>
-        <el-menu-item index="Home">Home</el-menu-item>
-        <el-menu-item index="Projects">Projects</el-menu-item>
-        <el-menu-item index="Resources">Resources</el-menu-item>
-        <el-menu-item index="Help">Help</el-menu-item>
-        <user-icon id="user-icon" style="width: 50px" />
+        <el-menu-item index="data">数据</el-menu-item>
+        <el-menu-item index="tool">工具</el-menu-item>
+        <el-menu-item index="task">任务</el-menu-item>
+        <el-menu-item index="project">项目</el-menu-item>
+        <el-menu-item index="help">帮助</el-menu-item>
+
+        
+        <el-menu-item index="register" style="margin-left: 50%" v-if="!isLogin">注册</el-menu-item>
+        <el-menu-item index="login"  v-if="!isLogin">登录</el-menu-item>
+        <user-icon id="user-icon" style="width: 50px"  v-if="isLogin"/>
       </el-menu>
     </el-heander>
     <el-main>
@@ -36,24 +40,26 @@
 <script>
 import { defineComponent, ref } from "vue";
 import { User as UserIcon } from "@element-plus/icons";
+import {useRouter} from 'vue-router'
 
 export default defineComponent({
   components: {
     UserIcon,
   },
+
   setup() {
-    const activeIndex = ref("1");
-    const activeIndex2 = ref("1");
-    const imgUrl = require("@/assets/images/OGMS.png");
+    const imgUrl = ref(require("@/assets/images/nnu_geodata.png"))
+    const isLogin = ref(false)
+
+    const router = useRouter()
 
     const handleSelect = (key, keyPath) => {    // 在这里改路由
-      if(keyPath[0] != 'Help')  window.location.href = '/'
-      else window.location.href = '/' + keyPath[0]
+      router.push('/' + keyPath[0])
     };
     return {
-      activeIndex,
-      activeIndex2,
       imgUrl,
+      isLogin,
+
       handleSelect,
     };
   },
@@ -70,7 +76,7 @@ export default defineComponent({
 }
 .el-header,
 .el-footer{
-  background-color: #515a6e;
+  background-color: #1d1e1f;
   color: var(--el-text-color-primary);
   text-align: center;
   line-height: 15px;
@@ -97,6 +103,12 @@ export default defineComponent({
   text-align: center;
   line-height: 160px;
 }
+
+.el-menu--horizontal>.el-menu-item {
+  font-size: 20px;
+  color: black;
+}
+
 body > .el-container {
   margin-bottom: 40px;
 }
