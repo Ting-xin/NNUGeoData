@@ -9,7 +9,7 @@
         active-text-color="#ffd04b"
         @select="handleSelect"
       >
-        <el-image style='width: 360px' :src="imgUrl" fit="scale-down"></el-image>
+        <el-image style='width: 360px;margin-left: 10px' :src="imgUrl" fit="scale-down"></el-image>
         <span class="border-style"></span>
         <el-menu-item index="data">数据</el-menu-item>
         <el-menu-item index="tool">工具</el-menu-item>
@@ -18,9 +18,11 @@
         <el-menu-item index="help">帮助</el-menu-item>
 
         
-        <el-menu-item index="register" style="margin-left: 50%" v-if="!isLogin">注册</el-menu-item>
-        <el-menu-item index="login"  v-if="!isLogin">登录</el-menu-item>
-        <user-icon id="user-icon" style="width: 50px"  v-if="isLogin"/>
+        <el-menu-item index="register" style="margin-left: 50%" v-if="!$store.state.user.isLogin">注册</el-menu-item>
+        <el-menu-item index="login"  v-if="!$store.state.user.isLogin">登录</el-menu-item>
+        <el-menu-item index="user" style="margin-left: 50%"  v-if="$store.state.user.isLogin">
+          <user-icon index="user" id="user-icon" style="width: 40px"  v-if="$store.state.user.isLogin"/>
+        </el-menu-item>
       </el-menu>
     </el-heander>
     <el-main>
@@ -40,7 +42,8 @@
 <script>
 import { defineComponent, ref } from "vue";
 import { User as UserIcon } from "@element-plus/icons";
-import {useRouter} from 'vue-router'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   components: {
@@ -49,7 +52,7 @@ export default defineComponent({
 
   setup() {
     const imgUrl = ref(require("@/assets/images/nnu_geodata.png"))
-    const isLogin = ref(false)
+    const store = useStore()
 
     const router = useRouter()
 
@@ -58,8 +61,6 @@ export default defineComponent({
     };
     return {
       imgUrl,
-      isLogin,
-
       handleSelect,
     };
   },
@@ -107,6 +108,10 @@ export default defineComponent({
 .el-menu--horizontal>.el-menu-item {
   font-size: 20px;
   color: black;
+}
+
+#user-icon[data-v-1632b64f] {
+    position: unset;
 }
 
 body > .el-container {

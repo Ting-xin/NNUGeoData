@@ -49,8 +49,9 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import { useStore } from "vuex";
 
-import { login } from "@/plugins/axios/api";
+import { login, getRootCatalog } from "@/plugins/axios/api";
 
 export default {
   name: "login",
@@ -62,6 +63,7 @@ export default {
     });
     const ruleFormRef = ref();
     const router = useRouter();
+    const store = useStore();
 
     /**
      * 表单验证
@@ -130,6 +132,26 @@ export default {
                 message: "登录成功！",
                 type: "success",
               });
+              store.commit("user/set", res.data);
+              store.commit("user/updateIsLogin")
+              let catalogId = res.data.catalogId
+              if (catalogId) {
+                getRootCatalog(catalogId)
+                  .then((res) => {
+                    ElMessage({
+                      message: "获取数据根目录",
+                      type: "success",
+                    });
+                    store.commit("catalog/set", res);
+                  })
+                  .catch((err) => {
+                    ElMessage({
+                      message: "获取根目录失败： " + err,
+                      type: "error",
+                    });
+                  });
+              }
+              router.push('/user')
             })
             .catch((err) => {
               ElMessage({
