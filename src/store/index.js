@@ -3,11 +3,13 @@ import createPersistedstate from 'vuex-persistedstate'
 
 import global from './modules/global'
 import user from './modules/user'
+import catalog from './modules/catalog'
 
 export default createStore({
     ...global,
     modules: {
-        user
+        user,
+        catalog
     },
     plugins: [
         createPersistedstate({

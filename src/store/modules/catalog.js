@@ -32,7 +32,7 @@ export default {
       state.catalog.userId = root.userId
       state.catalog.name = root.name
       state.catalog.level = root.level
-      setDataList(state, root.children)
+      console.log('test')
       localStorage.setItem('catalog', state.catalog)
     },
     setDataList(state, list) {

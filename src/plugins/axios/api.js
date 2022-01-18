@@ -19,3 +19,10 @@ export function getRootCatalog(id) {
         }
     })
 }
+
+// 新建文件夹
+export function createCatalog(data) {
+    return service.post('/catalog', data)
+}
+
+// 上传文件

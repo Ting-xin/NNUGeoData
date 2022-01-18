@@ -25,8 +25,8 @@
         </el-menu-item>
       </el-menu>
     </el-heander>
-    <el-main>
-      <router-view></router-view>  
+    <el-main class="body-main">
+      <router-view style="height: 100%"></router-view>  
     </el-main>
     <el-footer>
       <h2 class="footerTop">
@@ -97,12 +97,11 @@ export default defineComponent({
   font-size: 0.8em;
 }
 
-.el-main {
-  height: calc(100vh - 144px);
+.body-main {
+  height: calc(100vh - 141px);
   background-color: #e9eef3;
   color: var(--el-text-color-primary);
   text-align: center;
-  line-height: 160px;
 }
 
 .el-menu--horizontal>.el-menu-item {
@@ -114,7 +113,7 @@ export default defineComponent({
     position: unset;
 }
 
-body > .el-container {
-  margin-bottom: 40px;
+.el-main {
+    --el-main-padding: 10px;
 }
 </style>

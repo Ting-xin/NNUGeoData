@@ -21,6 +21,7 @@ export default {
             state.user.password = ''
             state.user.institution = ''
             state.user.isLogin = false
+            localStorage.setItem('isLogin', state.isLogin)
             localStorage.setItem('user', state.user)
         },
         set(state, user) {

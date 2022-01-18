@@ -142,7 +142,8 @@ export default {
                       message: "获取数据根目录",
                       type: "success",
                     });
-                    store.commit("catalog/set", res);
+                    store.commit("catalog/setCatalog", res.data);
+                    store.commit("catalog/setDataList", res.data.children);
                   })
                   .catch((err) => {
                     ElMessage({
