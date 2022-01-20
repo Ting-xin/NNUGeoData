@@ -15,23 +15,23 @@
       </el-header>
       <el-main height="80%">
         <el-row style="min-height: 300px">
-          <el-col :span="6">
+          <!-- <el-col :span="6">
             <el-tree
               :data="data"
               :props="defaultProps"
               @node-click="handleNodeClick"
               style="background: #e9eef3"
             />
-          </el-col>
-          <el-col :span="18">
+          </el-col> -->
+          <el-col :span="24">
             <el-row style="line-height: 10%">
               <el-col :span="2">
-                <el-button type="primary" size="large">新建文件夹</el-button>
+                <el-button type="primary" size="large" @click="addFolder">新建文件夹</el-button>
               </el-col>
               <el-col :span="2">
                 <el-button type="primary" size="large">添加文件</el-button>
               </el-col>
-              <el-col :span="10" :push="1">
+              <el-col :span="4" :push="1">
                 <!-- 搜索与添加区域 -->
                 <el-input
                   placeholder="请输入内容"
@@ -52,7 +52,7 @@
               style="line-height: 80%; min-height: 500px; margin-top: 10px"
             >
               <el-table
-                :data="tableData"
+                :data="dataList"
                 :stripe="true"
                 size="large"
                 fit="false"
@@ -62,6 +62,35 @@
                   line-height: 30px;
                 "
               >
+                <el-table-column width="50">
+                  <!-- <template #header>
+                    <span class="demonstration">操作</span>
+                  </template> -->
+                  <template #default="scope">
+                    <img
+                      v-if="scope.row.type === 'folder'"
+                      src="@/assets/images/folder.png"
+                      width="28"
+                      height="30"
+                      alt="Safari"
+                      title="Safari"
+                    />
+                    <img
+                      v-if="scope.row.type === 'file'"
+                      src="@/assets/images/file.png"
+                      width="28"
+                      height="30"
+                      alt="Safari"
+                      title="Safari"
+                    />
+                    <!-- <avatar
+                      v-if="scope.row.type === 'file'"
+                      :size="24"
+                      :rounded="false"
+                      :username="scope.row.name"
+                    ></avatar> -->
+                  </template>
+                </el-table-column>
                 <el-table-column label="名称" prop="name" />
                 <el-table-column label="时间" prop="date" />
                 <el-table-column label="描述" prop="description" />
@@ -72,7 +101,7 @@
                   <template #default="scope">
                     <el-button
                       size="small"
-                      @click="handleEdit(scope.$index, scope.row)"
+                      @click="handleDownload(scope.$index, scope.row)"
                       >download</el-button
                     >
                     <el-button
@@ -82,7 +111,7 @@
                     >
                     <el-button
                       size="small"
-                      @click="handleEdit(scope.$index, scope.row)"
+                      @click="handleDelete(scope.$index, scope.row)"
                       >delete</el-button
                     >
                   </template>
@@ -113,8 +142,9 @@ import { ref, reactive } from "vue";
 import { Search } from "@element-plus/icons";
 import Table from "./data/Table";
 import FileCatalog from './data/FileDialog.vue'
-import FolderCatalog from './data/FolderDialog.vue'
-
+import { createCatalog, downloadFile, deleteFile, deleteFolder } from '@/plugins/axios/api.js'
+import { ElMessage } from 'element-plus';
+import { useStore } from "vuex";
 
 export default {
   name: "Data",
@@ -129,87 +159,125 @@ export default {
       pageSize: 15,
       pagenum: 1, // 当前页码
     });
+    let catalogId = JSON.parse(localStorage.getItem('catalog')).id 
+    let userId = JSON.parse(localStorage.getItem('user')).id
+    const store = useStore();
 
     /**
      * 列表
      */
-    const tableData = ref(localStorage.getItem('dataList'))
-    /**
-     * 目录树
-     */
-    const handleNodeClick = (data) => {
-      console.log(data);
-    };
-    const data = [
-      {
-        label: "Level one 1",
-        children: [
-          {
-            label: "Level two 1-1",
-            children: [
-              {
-                label: "Level three 1-1-1",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Level one 2",
-        children: [
-          {
-            label: "Level two 2-1",
-            children: [
-              {
-                label: "Level three 2-1-1",
-              },
-            ],
-          },
-          {
-            label: "Level two 2-2",
-            children: [
-              {
-                label: "Level three 2-2-1",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Level one 3",
-        children: [
-          {
-            label: "Level two 3-1",
-            children: [
-              {
-                label: "Level three 3-1-1",
-              },
-            ],
-          },
-          {
-            label: "Level two 3-2",
-            children: [
-              {
-                label: "Level three 3-2-1",
-              },
-            ],
-          },
-        ],
-      },
-    ];
-    const defaultProps = {
-      children: "children",
-      label: "label",
-    };
+    const dataList = ref(JSON.parse(localStorage.getItem('dataList')))
 
+    const addFolder = () => {
+      createCatalog({
+        userId: userId,
+        parentId: catalogId,
+        name: '新建文件夹'
+      })
+      .then(res => {
+        ElMessage({
+          message: '新建文件夹成功',
+          type: 'success'
+        })
+        let data = {}
+        data.id = res.data.id
+        data.type = 'folder'
+        data.name = res.data.name
+        data.date = res.data.date
+        data.description = ''
+        data.clicks = 0
+        dataList.value.push(data)
+        store.commit("catalog/setDataList", dataList);
+      })
+      .catch(err => {
+          ElMessage({
+          message: '新建文件夹失败',
+          type: 'error'
+        })
+      })
+    }
+
+    const handleDownload = (index, row) => {
+      if(row.type === 'file') {
+        downloadFile({id: row.id, catalogId: catalogId})
+        .then(res => {
+          ElMessage({
+            message: '下载文件成功',
+            type: 'success'
+          })
+        })
+        .catch(err => {
+          ElMessage({
+            message: '下载文件失败',
+            type: 'error'
+          })
+        })
+      } else {
+        ElMessage({
+          message: '开发ing',
+          type: 'info'
+        })
+      }
+    }
+    const handleEdit = (index, row) => {
+      console.log('handleEdit')
+        row.isEdit = true;
+        // 备份原始数据
+        row['oldRow'] = JSON.parse(JSON.stringify(row));
+      ElMessage({
+        message: '开发ing',
+        type: 'info'
+      })
+    }
+    const handleDelete = (index, row) => {
+      if(row.type === 'file') {
+        deleteFile({id: row.id, catalogId: catalogId})
+        .then(res => {
+          console.log('data.value: ', dataList.value)
+          this.dataList.splice(index, 1)
+          console.log('data.value: ', dataList.value)
+
+          store.commit('catalog/setDataList', dataList)
+          ElMessage({
+            message: '删除文件成功',
+            type: 'success'
+          })
+        })
+        .catch(err => {
+          ElMessage({
+            message: '删除文件失败',
+            type: 'error'
+          })
+        })
+      } else if (row.type === 'folder') {
+        deleteFolder({id: row.id})
+        .then(res => {
+          delete dataList.value.index
+          store.commit('catalog/setDataList', dataList)
+          ElMessage({
+            message: '删除文件夹成功',
+            type: 'success'
+          })
+        })
+        .catch(err => {
+          ElMessage({
+            message: '删除文件夹失败',
+            type: 'error'
+          })
+        })
+      }
+      
+    }
 
 
     return {
       queryInfo,
-      tableData,
-      data,
-      defaultProps,
+      dataList,
       Search,
+      addFolder,
+      handleDownload,
+      handleEdit,
+      handleDelete
     };
   },
 };
@@ -217,5 +285,10 @@ export default {
 <style scoped>
 .el-container.is-vertical {
   height: 100%;
+}
+
+.el-input--small .el-input__inner {
+    height: 40px;
+    line-height: 40px;
 }
 </style>

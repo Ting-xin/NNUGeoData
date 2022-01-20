@@ -3,87 +3,154 @@
     >open a Form nested Dialog</el-button
   >
   <el-dialog v-model="visible" title="上传文件" width="30%" center>
-    <el-form :model="form">
-      <el-form-item label="名称">
-        <el-input v-model="form.name" autocomplete="off"></el-input>
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      :rules="rules"
+      status-icon
+      label-width="100px"
+      size="medium"
+    >
+      <el-form-item label="名称" prop="name">
+        <el-input v-model="ruleForm.name" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item label="文件">
-        <el-upload
-          class="upload-demo"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
-          :before-remove="beforeRemove"
-          multiple
-          :limit="3"
-          :on-exceed="handleExceed"
-          :file-list="fileList"
-        >
-          <el-button type="primary">点击上传文件</el-button>
-        </el-upload>
+      <el-form-item label="文件" prop="data">
+  <el-upload
+    ref="upload"
+    class="upload-demo"
+    :limit="1"
+    :on-exceed="handleExceed"
+    :auto-upload="false"
+    :http-request="handleRequest"
+    :show-file-list="false"
+  >
+    <template #trigger>
+      <el-button type="primary" style="width: 150px">选择文件</el-button>
+    </template>
+    <span></span>
+  </el-upload>
       </el-form-item>
-      <el-form-item label="Zones">
-        <el-select v-model="form.region" placeholder="Please select a zone">
-          <el-option label="Zone No.1" value="shanghai"></el-option>
-          <el-option label="Zone No.2" value="beijing"></el-option>
-        </el-select>
+      <el-form-item label="描述" prop="description">
+        <el-input v-model="ruleForm.description" autocomplete="off"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="visible = false">Cancel</el-button>
-        <el-button type="primary" @click="visible = false">Confirm</el-button>
+        <el-button type="info" @click="visible = false" size="medium"
+          >取消</el-button
+        >
+        <el-button type="warning" @click="resetForm(ruleFormRef)" size="medium"
+          >重置</el-button
+        >
+        <el-button type="primary" @click="submit(ruleFormRef)" size="medium"
+          >确定</el-button
+        >
       </span>
     </template>
   </el-dialog>
 </template>
 <script>
-import { reactive, ref } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-// import type { UploadFile } from 'element-plus/es/components/upload/src/upload.type'
+import { reactive, ref, unref } from "vue";
+import { ElMessage } from "element-plus";
+import { useStore } from "vuex";
+import { updateFile } from "@/plugins/axios/api";
 
 export default {
   name: "fileCatalog",
   setup(props) {
     const visible = ref(false);
-
-    const form = reactive({
+    const upload = ref()
+    const data = ref()
+    let catalogId = JSON.parse(localStorage.getItem("catalog")).id;
+    const ruleForm = reactive({
       name: "",
-      region: "",
-      date1: "",
-      date2: "",
-      delivery: false,
-      type: [],
-      resource: "",
-      desc: "",
+      data: "",
+      description: "",
+    });
+    const ruleFormRef = ref();
+    const store = useStore();
+
+    const rules = reactive({
+      name: [
+        {
+          required: true,
+          message: "请输入名称",
+          trigger: "blur",
+        },
+        {
+          max: 30,
+          message: "名称最长不超过 30 个字符",
+          trigger: "blur",
+        },
+      ],
+      description: [
+        {
+          max: 500,
+          message: "描述最长不超过 500 个字符",
+          trigger: "blur",
+        },
+      ],
     });
 
-    const fileList = ref([]);
-    const handleRemove = (file, fileList) => {
-      console.log(file, fileList);
+    const handleExceed = (files) => {
+      upload.value.clearFiles()
+      upload.value.handleStart(files[0])
+    }
+    const handleRequest = (e) => {
+      console.log('handleRequest')
+      const fd = new FileReader()
+      fd.readAsDataURL(e.file)
+      fd.onload = () => {
+        data.value = fd.result
+        console.log('data.value: ', data.value)
+      }
+    }
+
+    const resetForm = (formEl) => {
+      if (!formEl) return;
+      formEl.resetFields();
     };
-    const handlePreview = (file) => {
-      console.log(file);
-    };
-    const handleExceed = (files, fileList) => {
-      ElMessage.warning(
-        `The limit is 3, you selected ${
-          files.length
-        } files this time, add up to ${files.length + fileList.length} totally`
-      );
-    };
-    const beforeRemove = (file, fileList) => {
-      return ElMessageBox.confirm(`Cancel the transfert of ${file.name} ?`);
+    const submit = (formEl) => {
+      console.log("login submit: ", formEl);
+      if (!formEl) return;
+      formEl.validate((valid) => {
+        if (valid) {
+          let formData = new FormData()
+          formData.append('data', data.value)
+          formData.append('name', ruleForm.name)
+          formData.append('description', ruleForm.description)
+          formData.append('id', catalogId)
+          console.log('formData: ', formData.getAll())
+          updateFile(formData)
+            .then((res) => {
+              ElMessage({
+                message: "上传文件成功",
+                type: "success",
+              });
+            })
+            .catch((err) => {
+              ElMessage({
+                message: "上传文件失败： " + err,
+                type: "error",
+              });
+            });
+        } else {
+          ElMessage("请先通过验证");
+          return false;
+        }
+      });
     };
 
     return {
       visible,
-      form,
-      fileList,
-      handleRemove,
-      handlePreview,
+      upload,
+      ruleForm,
+      ruleFormRef,
+      rules,
       handleExceed,
-      beforeRemove
+      handleRequest,
+      resetForm,
+      submit,
     };
   },
 };

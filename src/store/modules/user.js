@@ -4,53 +4,27 @@ import { login } from '@/plugins/axios/api'
 export default {
     namespaced: true,
     state: {
-        user: {
-            id: '',
-            catalogId: '',
-            name: '',
-            password: '',
-            institution: ''
-        },
+        user: '',
         isLogin: false
     },
     mutations: {
         init(state) {
-            state.user.id = ''
-            state.user.catalogId = ''
-            state.user.name = ''
-            state.user.password = ''
-            state.user.institution = ''
-            state.user.isLogin = false
-            localStorage.setItem('isLogin', state.isLogin)
+            state.user = ''
+            state.isLogin = false
             localStorage.setItem('user', state.user)
+            localStorage.setItem('isLogin', false)
         },
         set(state, user) {
-            state.user.id = user.id
-            state.user.catalogId = user.catalogId
-            state.user.name = user.name
-            state.user.password = user.password
-            state.user.institution = user.institution
+            state.user = JSON.stringify(user)
             localStorage.setItem('user', state.user)
         },
         updateIsLogin(state) {
-            localStorage.setItem('isLogin', !state.isLogin)
             state.isLogin = !state.isLogin
+            localStorage.setItem('isLogin', state.isLogin)
         },
         getIsLogin(state) {
             return state.isLogin
-        },
-        updateName(state, name) {
-            state.user.name = name 
-            localStorage.setItem('user', state.user)
-        },
-        updatePassword(state, password) {
-            state.user.password = password 
-            localStorage.setItem('user', state.user)
-        },
-        updateInstitution(state, institution) {
-            state.user.institution = institution 
-            localStorage.setItem('user', state.user)
-        },
+        }
     },
     // actions: {
     //     loginAndStore({ commit }, data) {

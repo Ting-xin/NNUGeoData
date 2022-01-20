@@ -16,7 +16,6 @@ service.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
-
 // 返回响应数据拦截
 service.interceptors.response.use((res) => {
     const data = res.data;
