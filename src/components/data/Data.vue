@@ -140,8 +140,8 @@
 <script>
 import { ref, reactive } from "vue";
 import { Search } from "@element-plus/icons";
-import Table from "./data/Table";
-import FileCatalog from './data/FileDialog.vue'
+import Table from "./Table";
+import FileCatalog from './SingleFileDialog.vue'
 import { createCatalog, downloadFile, deleteFile, deleteFolder } from '@/plugins/axios/api.js'
 import { ElMessage } from 'element-plus';
 import { useStore } from "vuex";

@@ -1,14 +1,14 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import { ElMessage } from "element-plus";
 
-import Navigation from '@/common/Navigation.vue'
-import Register from '@/components/Register.vue'
-import Login from '@/components/Login.vue'
-import User from '@/components/User.vue'
-import Data from '@/components/Data.vue'
-import Tool from '@/components/Tool.vue'
-import Task from '@/components/Task.vue'
-import Project from '@/components/Project.vue'
+import Navigation from '@/components/Navigation.vue'
+import Register from '@/components/user/Register.vue'
+import Login from '@/components/user/Login.vue'
+import User from '@/components/user/User.vue'
+import Data from '@/components/data/Data.vue'
+import Tool from '@/components/tool/Tool.vue'
+import Task from '@/components/task/Task.vue'
+import Project from '@/components/project/Project.vue'
 import Help from '@/components/Help.vue'
 import { ElMessageBox } from 'element-plus';
 
