@@ -2,7 +2,7 @@
   <el-button type="text" @click="visible = true"
     >open a Form nested Dialog</el-button
   >
-  <el-dialog v-model="visible" title="上传文件" width="30%" center>
+  <el-dialog v-model="visible" title="上传文件" width="30%" center @close="handleClose">
     <el-form
       ref="ruleFormRef"
       :model="ruleForm"

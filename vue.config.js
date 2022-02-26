@@ -1,5 +1,6 @@
 module.exports = {
     lintOnSave:false,//关闭ESLint代码检验
+    
     devServer: {
         open:true,//run启动的时候是否弹出页面
         host:'0.0.0.0',//本机地址
