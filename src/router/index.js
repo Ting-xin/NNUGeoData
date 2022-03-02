@@ -1,15 +1,15 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import { ElMessage } from "element-plus";
 
-import Navigation from '@/components/Navigation.vue'
-import Register from '@/components/user/Register.vue'
-import Login from '@/components/user/Login.vue'
-import User from '@/components/user/User.vue'
-import Data from '@/components/data/Data.vue'
-import Tool from '@/components/tool/Tool.vue'
-import Task from '@/components/task/Task.vue'
-import Project from '@/components/project/Project.vue'
-import Help from '@/components/Help.vue'
+import Navigation from '@/view/index.vue'
+import Register from '@/view/user/register.vue'
+import Login from '@/view/user/login.vue'
+import User from '@/view/user/user.vue'
+import Data from '@/view/data/data.vue'
+import Tool from '@/view/tool/tool.vue'
+import Task from '@/view/task/task.vue'
+import Project from '@/view/project/project.vue'
+import Help from '@/view/help/help.vue'
 import { ElMessageBox } from 'element-plus';
 
 const routes = [
@@ -67,21 +67,5 @@ const router = createRouter({
     history: routerHistory,
     routes: routes
 })
-
-router.beforeEach((to, from, next) => {     // 判断是否是登录状态
-    if (to.path === '/login') {
-      next();
-    } else {
-      let isLogin = localStorage.getItem("isLogin");
-      if (!isLogin) {
-        ElMessage('请先登录。')
-        next('/login');
-      } else {
-        next();
-      }
-    }
-  });
-
-
 
 export default router;

@@ -1,15 +1,4 @@
-import service from './axios.js';
-import qs from 'qs'
-
-// 注册用户
-export function register(data) {
-    return service.post('/user', data)
-}
-
-// 登录
-export function login(data) {
-    return service.post('/user/login', data)
-}
+import service from '@/utils/request';
 
 // 查询目录
 export function getRootCatalog(id) {
@@ -24,6 +13,11 @@ export function getRootCatalog(id) {
 export function createCatalog(data) {
     console.log('createCatalog: ', data)
     return service.post('/catalog', data)
+}
+
+// 删除文件夹
+export function deleteFolder(data) {
+    return service.delete('/catalog', {params: data})
 }
 
 // 上传文件
@@ -48,9 +42,4 @@ export function downloadFile(data) {
 // 删除文件
 export function deleteFile(data) {
     return service.delete('/file', {params: data})
-}
-
-// 删除文件夹
-export function deleteFolder(data) {
-    return service.delete('/catalog', {params: data})
 }

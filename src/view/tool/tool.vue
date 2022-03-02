@@ -1,4 +1,7 @@
 <template>
+  <el-button type="text" @click="visible = true"
+    >open a Form nested Dialog</el-button
+  >
   <el-dialog v-model="visible" title="上传文件" width="30%" center @close="handleClose">
     <el-form
       ref="ruleFormRef"
@@ -31,9 +34,9 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <!-- <el-button type="info" @click="handleClose" size="medium"
+        <el-button type="info" @click="visible = false" size="medium"
           >取消</el-button
-        > -->
+        >
         <el-button type="warning" @click="resetForm(ruleFormRef)" size="medium"
           >重置</el-button
         >
@@ -45,36 +48,15 @@
   </el-dialog>
 </template>
 <script>
-import { reactive, ref, unref, watchEffect } from "vue";
+import { reactive, ref, unref } from "vue";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
-import { updateFile } from "@/plugins/axios/api";
-
-// 控制弹窗
-const usePopup = (props, emit) => {
-  const visible = ref(false)
-  watchEffect(() => {
-    visible.value = props.visible
-  })
-  const handleClose = () => {
-    emit('changeVisible')
-  }
-  return {
-    visible,
-    handleClose
-  }
-}
+import { updateFile } from "@/api/data";
 
 export default {
   name: "fileCatalog",
-  props: {
-    visible: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props, {emit}) {
-    const {visible, handleClose} = usePopup(props, emit)
+  setup(props) {
+    const visible = ref(false);
     const upload = ref()
     const data = ref()
     let catalogId = JSON.parse(localStorage.getItem("catalog")).id;
@@ -161,7 +143,6 @@ export default {
       ruleForm,
       ruleFormRef,
       rules,
-      handleClose,
       beforeUpload,
       handleExceed,
       resetForm,

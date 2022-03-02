@@ -1,16 +1,22 @@
 import {createApp} from 'vue'
+
 import router from './router'
+
 import App from './App.vue'
 
 import ElementPlus from 'element-plus'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import 'element-plus/dist/index.css'
 
 import store from '@/store/index'
 
-
 const app = createApp(App)
-app.use(ElementPlus, { size: 'small', zIndex: 3000 })
-app.use(router)
-app.use(store)
 
-app.mount('#app')
+app
+  .use(store)
+  .use(router)
+  // .use(ElementPlus, { size: 'small', zIndex: 3000})
+  .use(ElementPlus, {locale: zhCn})
+  .mount('#app')
+
+export default app

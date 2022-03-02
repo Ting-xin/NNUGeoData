@@ -1,5 +1,5 @@
 import { deepClone } from "@/utils/littleUtils"
-import { login } from '@/plugins/axios/api'
+import { login } from '@/api/user'
 // 用户
 export default {
     namespaced: true,

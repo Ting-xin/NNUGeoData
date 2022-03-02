@@ -7,13 +7,13 @@
         </h4>
         <el-divider></el-divider>
         <el-form-item label="姓名:">
-          <label>{{ $store.state.user.user.name }}</label>
+          <label>{{ user.name }}</label>
         </el-form-item>
         <el-form-item label="机构:">
-          <label>{{ $store.state.user.user.institution }}</label>
+          <label>{{ user.institution }}</label>
         </el-form-item>
         <el-form-item label="Email:">
-          <label>{{ $store.state.user.user.email }}</label>
+          <label>{{ user.email }}</label>
         </el-form-item>
         <el-form-item label="数据量:">
           <label>0</label>
@@ -22,7 +22,9 @@
           <label>0</label>
         </el-form-item>
         <div>
-          <el-button type="danger" plain size="medium" @click="logout">注销</el-button>
+          <el-button type="danger" plain size="medium" @click="logout"
+            >注销</el-button
+          >
           <el-button type="info" size="medium">编辑信息</el-button>
           <el-button type="primary" size="medium">更改环境</el-button>
         </div>
@@ -32,25 +34,24 @@
 </template>
 
 <script>
+export default {
+  name: "User",
+};
+</script>
+
+<script setup>
+import {reactive} from "vue"
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+const store = useStore();
+const router = useRouter();
 
-export default {
-  name: "user",
-  setup(props, { refs, root }) {
-    const store = useStore();
-    const router = useRouter();
+const user = reactive(JSON.parse(localStorage.getItem("user")))
 
-    let logout = () => {
-      store.commit('user/init')
-      store.commit('catalog/init')
-      router.push('/login')
-    }
-    
-    return{
-      logout
-    }
-  },
+const logout = () => {
+  store.commit("user/init");
+  store.commit("catalog/init");
+  router.push("/login");
 };
 </script>
 
@@ -65,9 +66,9 @@ ul li {
   margin: 10px;
   font-size: initial;
 }
-.avatar {
-  /* display: inline-block; */
-}
+/* .avatar {
+  display: inline-block;
+} */
 .head {
   text-align: center;
 }
