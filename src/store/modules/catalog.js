@@ -1,4 +1,4 @@
-import {deepClone} from '@/utils/littleUtils'
+import {deepClone} from '@/utils/deepClone'
 // 目录
 export default {
   namespaced: true,

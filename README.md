@@ -21,6 +21,49 @@
 
 4. 后端代码：[geoDataBackEnd](https://github.com/Ting-xin/geoDataBackEnd)
 
+## 代码结构
+
+参考的前端平台：[gin-vue-admin](https://github.com/flipped-aurora/gin-vue-admin)
+
+```lua
+nnu_geodata
+├── src   -- 源代码
+│   ├── api  -- 所有请求
+|   |   ├── data.js  -- 数据相关的 api
+|   |   ├── user.js  -- 用户相关的 api
+│   ├── assets  --  图片等静态资源
+|   ├── components  -- components 通用组件
+|   ├── router  -- 路由
+|   ├── store  -- store vuex
+|   |   ├── modules  -- modules 
+|   |   |   ├── catlog.js  -- 目录信息
+|   |   |   └── user.js  -- 用户信息
+|   |   └── index.js  -- index
+|   ├── styles  -- css
+|   ├── utils  -- 工具
+|   |   ├── bus.js  -- mitt 工具
+|   |   ├── date.js  -- 日期转换
+|   |   ├── deepClone.js  -- 深拷贝功能
+|   |   ├── request.js  -- axios service 服务
+|   |   ├── validate.js  -- 一些验证函数
+|   ├── view  -- 主要view代码
+|   |   ├── data  --  数据管理页面
+|   |   ├── help  --  帮助页面
+|   |   ├── project  --  项目管理页面
+|   |   ├── task  --  任务管理页面
+|   |   ├── tool  --  工具管理页面
+|   |   ├── user  --  登录注册、个人中心 页面
+|   |   ├── index.vue  --  导航页面
+│   ├── App.vue  -- 入口页面
+│   ├── main.js  -- 入口文件 加载组件 初始化等
+│   └── permission.js  -- 跳转限制
+├── README.md  -- 说明文档
+├── vue.config.js  -- vue-cli 配置
+└── package.json  -- package.json
+```
+
+
+
 ## Project setup
 ```
 npm install
