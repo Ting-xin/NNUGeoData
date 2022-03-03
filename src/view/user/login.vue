@@ -23,17 +23,13 @@
               v-model="loginFormData.password"
               autocomplete="off"
             ></el-input>
-          </el-form-item>
-          <el-form-item label="机构" prop="institution">
-            <el-input v-model="loginFormData.institution"></el-input>
-          </el-form-item>
-
+            </el-form-item>
           <el-form-item>
             <el-button type="info" @click="resetForm(loginForm)" size="medium"
               >重置</el-button
             >
             <el-button @click="toRegisterPage()" type="info" size="medium"
-              >注册页面</el-button
+              >注册</el-button
             >
             <el-button type="primary" @click="submit(loginForm)" size="medium"
               >登录</el-button
@@ -57,12 +53,12 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
 
-import { login, getRootCatalog } from "@/api/user";
+import { validatePassword } from '@/utils/validate.js'
+import { login} from "@/api/user";
 
 const loginFormData = reactive({
   name: "",
   password: "",
-  institution: "",
 });
 const loginForm = ref();
 const rules = reactive({
@@ -120,41 +116,18 @@ const toRegisterPage = () => {
 
 // 登录
 const submit = (formEl) => {
-  console.log("login submit: ", formEl);
   if (!formEl) return;
   formEl.validate((valid) => {
     if (valid) {
-      let data = {
-        name: loginFormData.name,
-        password: loginFormData.password,
-      };
-      login(data)
+      login(loginFormData)
         .then((res) => {
-          console.log("response: ", res);
           ElMessage({
             message: "登录成功！",
             type: "success",
           });
-          store.commit("user/set", res.data);
-          store.commit("user/updateIsLogin");
-          let catalogId = res.data.catalogId;
-          if (catalogId) {
-            getRootCatalog(catalogId)
-              .then((res) => {
-                ElMessage({
-                  message: "获取数据根目录",
-                  type: "success",
-                });
-                store.commit("catalog/setCatalog", res.data);
-                store.commit("catalog/setDataList", res.data.children);
-              })
-              .catch((err) => {
-                ElMessage({
-                  message: "获取根目录失败： " + err,
-                  type: "error",
-                });
-              });
-          }
+          delete res.data.password
+          store.commit("user/setUser", res.data);
+          store.commit('catalog/setRoot', res.data.catalogId)
           router.push("/user");
         })
         .catch((err) => {

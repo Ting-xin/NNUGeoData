@@ -1,3 +1,5 @@
+import { ElMessage } from "element-plus";
+
 export function deepClone(initalObj, finalObj) {    
   var obj = finalObj || {};    
   for (var i in initalObj) {        
@@ -13,4 +15,12 @@ export function deepClone(initalObj, finalObj) {
     }
   }    
   return obj;
+}
+
+export function todo(name) {
+  ElMessage({
+    showClose: true,
+    message: (name ? name : '') + ' is to be done!',
+    type: 'warning '
+  })
 }

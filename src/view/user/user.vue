@@ -25,8 +25,8 @@
           <el-button type="danger" plain size="medium" @click="logout"
             >注销</el-button
           >
-          <el-button type="info" size="medium">编辑信息</el-button>
-          <el-button type="primary" size="medium">更改环境</el-button>
+          <el-button type="info" size="medium" @click="changePass">更改密码</el-button>
+          <el-button type="primary" size="medium" @click="edit">编辑信息</el-button>
         </div>
       </el-form>
     </el-card>
@@ -40,19 +40,32 @@ export default {
 </script>
 
 <script setup>
-import {reactive} from "vue"
+import {reactive, computed} from "vue"
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+
+import {todo} from "@/utils/littleTools"
+
 const store = useStore();
 const router = useRouter();
 
-const user = reactive(JSON.parse(localStorage.getItem("user")))
+const user = computed(() => {
+  return store.getters["user/getUser"]
+})
 
 const logout = () => {
   store.commit("user/init");
   store.commit("catalog/init");
   router.push("/login");
 };
+const edit = () => {
+  todo('edit')
+}
+const changePass = () => {
+  todo('change password')
+}
+
+
 </script>
 
 <style>

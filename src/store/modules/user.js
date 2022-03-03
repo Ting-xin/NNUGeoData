@@ -1,43 +1,46 @@
-import { deepClone } from "@/utils/deepClone"
-import { login } from '@/api/user'
+import storage from '@/utils/storage'
 // 用户
 export default {
     namespaced: true,
+    // 数据保存在state内，在任何组件内通过this.$store.state.XX来读取
     state: {
         user: '',
-        isLogin: false
     },
+    // 用来直接修改state内的数据；在组件内，通过this.$store.commit(方法名)来执行mutations
     mutations: {
         init(state) {
             state.user = ''
-            state.isLogin = false
-            localStorage.setItem('user', state.user)
-            localStorage.setItem('isLogin', false)
+            storage.remove('user')
         },
-        set(state, user) {
+        setUser(state, user) {
             state.user = JSON.stringify(user)
-            localStorage.setItem('user', state.user)
+            storage.set('user', state.user)
         },
-        updateIsLogin(state) {
-            state.isLogin = !state.isLogin
-            localStorage.setItem('isLogin', state.isLogin)
-        },
-        getIsLogin(state) {
-            return state.isLogin
-        }
     },
-    // actions: {
-    //     loginAndStore({ commit }, data) {
-    //         return new Promise((resolve, reject) => {
-    //             login(data)
-    //              .then(res => {
-    //                  commit('set', res)
-    //                  resolve(data)
-    //              })
-    //              .catch(err => {
-    //                  reject(err)
-    //              })
-    //         })
-    //     }
-    // }
+    getters: {
+        getUser(state) {
+            state.user = storage.get('user')
+            return JSON.parse(state.user)
+        },
+        getUserId(state) {
+            state.user = storage.get('user')
+            return JSON.parse(storage.get('user'))._id
+        },
+        getCatalogId(state) {
+            state.user = storage.get('user')
+            return JSON.parse(storage.get('user')).catalogId
+        },
+        getName(state) {
+            state.user = storage.get('user')
+            return JSON.parse(storage.get('user')).name
+        },
+        getInstitution(state) {
+            state.user = storage.get('user')
+            return JSON.parse(storage.get('user')).institution
+        },
+        getDate(state) {
+            state.user = storage.get('user')
+            return JSON.parse(storage.get('user')).date
+        },
+    }
 }

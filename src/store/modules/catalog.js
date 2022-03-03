@@ -1,38 +1,39 @@
-import {deepClone} from '@/utils/deepClone'
-// 目录
+// 目录,通过快照式实现撤销与重做
 export default {
   namespaced: true,
   state: {
-    catalog: '',
-    dataList: '',
+    cursor: -1,
     stackCatalog: [],
   },
   mutations: {
     init(state) {
-      state.catalog = ''
-      state.dataList = ''
+      state.cursor = -1
       state.stackCatalog = []
-      localStorage.setItem('catalog', state.catalog)
-      localStorage.setItem('dataList', state.dataList)
-      localStorage.setItem('stackCatalog', state.stackCatalog)
     },
-    setCatalog(state, root) {
-      state.catalog= JSON.stringify(root)
-      localStorage.setItem('catalog', state.catalog)
+    setRoot(state, catalogId) {
+      state.cursor = 0
+      state.stackCatalog.push(catalogId)
     },
-    setDataList(state, list) {
-      state.dataList = JSON.stringify(list)
-      localStorage.setItem('dataList', state.dataList)
-    },
-    pushStackCatalog(state, data) {
-      state.stackCatalog.push(JSON.stringify(data))
-      localStorage.setItem('stackCatalog', state.stackCatalog)
-    },
-    pullStackCatalog(state, data) {
-      if(state.stackCatalog.length > 0) {
-        state.catalog = state.stackCatalog.splice(-1, 1)[0]
-        localStorage.setItem('stackCatalog', state.stackCatalog)
+    record(state, catalogId) {
+      while(state.cursor < state.stackCatalog.length - 1) {
+        state.stackCatalog.pop()
       }
+      state.stackCatalog.push(catalogId)
+    },
+    redo(state) {
+      if(state.cursor < state.stackCatalog.length - 1)
+        state.cursor += 1
+      return state.stackCatalog[state.cursor]
+    },
+    undo(state) {
+      if(state.cursor > -1) 
+        state.cursor -= 1
+      return state.stackCatalog[state.cursor]
+    }
+  },
+  getters: {
+    getCatalogId(state) {
+      return state.stackCatalog[state.cursor]
     }
   }
 }

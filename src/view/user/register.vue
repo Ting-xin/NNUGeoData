@@ -67,15 +67,21 @@
 
 <script>
 export default {
-  name: 'Register'
-}
+  name: "Register",
+};
 </script>
 
-<script>
+<script setup>
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 
+import {
+  strpscript,
+  validateVEmail,
+  validateVPassword,
+  validateVCheckCode,
+} from "@/utils/validate.js";
 import { register } from "@/api/user";
 
 const registerFormData = reactive({
@@ -88,28 +94,32 @@ const registerFormData = reactive({
 const registerForm = ref();
 const router = useRouter();
 
-const validatePass = (rule, value, callback) => {
-  if (value === "") {
-    callback(new Error("请输入密码"));
-  } else {
-    if (registerFormData.checkPass !== "") {
-      if (!registerForm.value) return;
-      registerForm.value.validateField("checkPass", () => null);
-    }
-    callback();
-  }
-};
-
-const validatePass2 = (rule, value, callback) => {
-  if (value === "") {
-    callback(new Error("请输入重复密码"));
-  } else if (value !== registerFormData.password) {
-    callback(new Error("重复密码和密码不相同"));
+// 邮箱验证
+let validateEmail = (rule, value, callback) => {
+  console.log(strpscript(value));   // 防止 xss 代码注入攻击
+  if (value == "") callback(new Error("邮箱不能为空！"));
+  else if (validateVEmail(value)) {
+    callback(new Error("邮箱格式有误！"));
   } else {
     callback();
   }
 };
-
+// 密码验证
+let validatePassword = (rule, value, callback) => {
+  console.log(strpscript(value));
+  if (value == "") callback(new Error("密码不能为空！"));
+  else if (validateVPassword(value)) {
+    callback(new Error("密码 6-20位，包含大小写字母和数字"));
+  } else callback();
+};
+// 密码重复验证
+let validateCheckPassword = (rule, value, callback) => {
+  console.log(strpscript(value));
+  if (value == "") callback(new Error("重复密码不能为空！"));
+  else if (registerFormData.password != registerFormData.checkPass) {
+    callback(new Error("密码与重复密码不相同"));
+  } else callback();
+};
 const rules = reactive({
   name: [
     {
@@ -125,40 +135,31 @@ const rules = reactive({
   ],
   password: [
     {
-      required: true,
-      message: "请输入密码",
+      validator: validatePassword,
       trigger: "blur",
     },
-    { validator: validatePass, trigger: "blur" },
   ],
   checkPass: [
     {
-      required: true,
-      message: "请输入重复密码",
+      validator: validateCheckPassword,
       trigger: "blur",
     },
-    { validator: validatePass2, trigger: "blur" },
   ],
   email: [
     {
-      required: true,
-      message: "请输入邮箱",
+      validator: validateEmail,
       trigger: "blur",
-    },
-    {
-      type: "email",
-      message: "请输入正确的邮箱",
-      trigger: ["blur", "change"],
     },
   ],
   institution: [
     {
-      max: 200,
-      message: "机构名最长不超过 200 个字符",
-      trigger: "blur",
+      max: 500,
+      message: "机构名最长不超过 500 个字符",
+      trigger: ["blur", "change"],
     },
   ],
 });
+
 
 const resetForm = (formEl) => {
   if (!formEl) return;
@@ -170,18 +171,11 @@ const toLoginPage = () => {
 };
 
 const submit = (formEl) => {
-  console.log("register submit: ", formEl);
   if (!formEl) return;
   formEl.validate((valid) => {
     if (valid) {
-      let data = {
-        name: registerFormData.name,
-        password: registerFormData.password,
-        institution: registerFormData.institution,
-      };
-      register(data)
+      register(registerFormData)
         .then((response) => {
-          console.log("response: ", response);
           ElMessage({
             message: "注册用户成功",
             type: "success",

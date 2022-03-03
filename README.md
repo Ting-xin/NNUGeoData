@@ -23,7 +23,11 @@
 
 ## 代码结构
 
+node 版本： v16.6.2
+
 参考的前端平台：[gin-vue-admin](https://github.com/flipped-aurora/gin-vue-admin)
+
+代码结构如下：
 
 ```lua
 nnu_geodata
