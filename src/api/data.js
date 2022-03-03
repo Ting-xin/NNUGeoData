@@ -1,7 +1,7 @@
 import service from '@/utils/request';
 
 // 查询目录
-export function getRootCatalog(id) {
+export function getDataList(id) {
     return service.get('/catalog', {
         params:{
             id: id

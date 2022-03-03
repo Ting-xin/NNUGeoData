@@ -1,7 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import { ElMessage } from "element-plus";
 
-import Navigation from '@/view/index.vue'
+import Navigation from '@/view/navigation.vue'
 import Register from '@/view/user/register.vue'
 import Login from '@/view/user/login.vue'
 import User from '@/view/user/user.vue'
@@ -67,5 +67,6 @@ const router = createRouter({
     history: routerHistory,
     routes: routes
 })
+
 
 export default router;

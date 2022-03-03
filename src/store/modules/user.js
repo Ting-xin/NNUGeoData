@@ -13,34 +13,28 @@ export default {
             storage.remove('user')
         },
         setUser(state, user) {
-            state.user = JSON.stringify(user)
+            state.user = user
             storage.set('user', state.user)
         },
     },
     getters: {
         getUser(state) {
-            state.user = storage.get('user')
-            return JSON.parse(state.user)
+            return state.user
         },
         getUserId(state) {
-            state.user = storage.get('user')
-            return JSON.parse(storage.get('user'))._id
+            return state.user ? state.user.id : ''
         },
         getCatalogId(state) {
-            state.user = storage.get('user')
-            return JSON.parse(storage.get('user')).catalogId
+            return state.user ? state.user.catlogId : ''
         },
         getName(state) {
-            state.user = storage.get('user')
-            return JSON.parse(storage.get('user')).name
+            return state.user ? state.user.name : ''
         },
         getInstitution(state) {
-            state.user = storage.get('user')
-            return JSON.parse(storage.get('user')).institution
+            return state.user ? state.user.institution : ''
         },
         getDate(state) {
-            state.user = storage.get('user')
-            return JSON.parse(storage.get('user')).date
+            return state.user ? state.user.date : ''
         },
     }
 }

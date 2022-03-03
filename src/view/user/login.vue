@@ -53,7 +53,7 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
 
-import { validatePassword } from '@/utils/validate.js'
+import { strpscript, validateVPassword } from '@/utils/validate.js'
 import { login} from "@/api/user";
 
 const loginFormData = reactive({
@@ -61,6 +61,17 @@ const loginFormData = reactive({
   password: "",
 });
 const loginForm = ref();
+const router = useRouter();
+const store = useStore();
+
+// 验证
+let validatePassword = (rule, value, callback) => {
+  console.log(strpscript(value));
+  if (value == "") callback(new Error("密码不能为空！"));
+  else if (validateVPassword(value)) {
+    callback(new Error("密码 6-20位，包含大小写字母和数字"));
+  } else callback();
+};
 const rules = reactive({
   name: [
     {
@@ -76,34 +87,12 @@ const rules = reactive({
   ],
   password: [
     {
-      required: true,
-      message: "请输入密码",
-      trigger: "blur",
-    },
-    { validator: validatePass, trigger: "blur" },
-  ],
-  institution: [
-    {
-      max: 200,
-      message: "机构名最长不超过 200 个字符",
+      validator: validatePassword,
       trigger: "blur",
     },
   ],
 });
-const router = useRouter();
-const store = useStore();
 
-const validatePass = (rule, value, callback) => {
-  if (value === "") {
-    callback(new Error("请输入密码"));
-  } else {
-    if (loginFormData.checkPass !== "") {
-      if (!loginForm.value) return;
-      loginForm.value.validateField("checkPass", () => null);
-    }
-    callback();
-  }
-};
 
 const resetForm = (formEl) => {
   if (!formEl) return;

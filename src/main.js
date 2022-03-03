@@ -1,6 +1,7 @@
 import {createApp} from 'vue'
 
 import router from './router'
+import '@/permission'
 
 import App from './App.vue'
 

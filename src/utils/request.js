@@ -63,6 +63,8 @@ service.interceptors.response.use(
     closeLoading()
     if (response.data.code === 0) {
       return response.data
+    } else {
+      return new Error(res.message)
     }
   },
   error => {

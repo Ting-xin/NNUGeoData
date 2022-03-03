@@ -57,7 +57,7 @@ export default {
 };
 </script>
 
-<script setpup>
+<script setup>
 import { reactive, ref, unref, watchEffect } from "vue";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
@@ -81,23 +81,28 @@ const usePopup = (props, emit) => {
   const handleClose = () => {
     emit("changeVisible");
   };
+  const freshList = () => {
+    emit('freshList')
+  }
   return {
     visible,
     handleClose,
+    freshList
   };
 };
 
-const { visible, handleClose } = usePopup(props, emit);
+const { visible, handleClose, freshList } = usePopup(props, emit);
 const upload = ref();
 const data = ref();
-let catalogId = JSON.parse(localStorage.getItem("catalog")).id;
+const store = useStore();
+const catalogId = ref(store.getters["catalog/getCatalogId"])
 const fileFormData = reactive({
   name: "",
   data: "",
   description: "",
 });
 const fileForm = ref();
-const store = useStore();
+
 const rules = reactive({
   name: [
     {
@@ -146,13 +151,14 @@ const submit = (formEl) => {
       formData.append("data", data.value);
       formData.append("name", fileFormData.name);
       formData.append("description", fileFormData.description);
-      formData.append("id", catalogId);
+      formData.append("id", catalogId.value);
       updateFile(formData)
         .then((res) => {
           ElMessage({
             message: "上传文件成功",
             type: "success",
           });
+          freshList()
           visible.value = false;
         })
         .catch((err) => {
