@@ -1,30 +1,16 @@
 <template>
   <FileCatalog
     :visible="fileVisible"
+    :catalogId="catalogId"
+    :pageInfo="pageInfo"
     @changeVisible="changeFileVisible"
     @freshList="freshList"
   />
   <el-container>
-    <el-main height="85%">
+    <el-main style="padding: 0px">
       <el-row style="min-height: 300px">
-        <!-- <el-col :span="6">
-            <el-tree
-              :data="data"
-              :props="defaultProps"
-              @node-click="handleNodeClick"
-              style="background: #e9eef3"
-            />
-          </el-col> -->
         <el-col :span="24">
           <el-row style="line-height: 10%">
-            <!-- <el-col :span="3">
-              <el-switch
-                v-model="queryInfo.isPrivate"
-                size="large"
-                active-text="私有数据"
-                inactive-text="公有数据"
-              />
-            </el-col> -->
             <el-col :span="2">
               <el-button type="primary" size="large" @click="addFolder"
                 >新建文件夹</el-button
@@ -32,24 +18,92 @@
             </el-col>
             <el-col :span="2">
               <el-button type="primary" size="large" @click="changeFileVisible"
-                >添加文件</el-button
+                >上传文件</el-button
               >
             </el-col>
-            <el-col :span="4" :push="1">
-              <!-- 搜索与添加区域 -->
-              <el-input
-                placeholder="请输入内容"
-                v-model="pageInfo.content"
-                clearable
-                @clear="getUserList"
-                style="height: 40px"
+            <el-col :span="2">
+              <el-button type="primary" size="large" @click="uploadBigFile"
+                >上传大文件</el-button
               >
-                <template #append>
-                  <el-button @click="getUserList">
-                    <el-icon><search /></el-icon>
-                  </el-button>
-                </template>
-              </el-input>
+            </el-col>
+            <el-col :span="2">
+              <el-button type="primary" size="large" @click="uploadMultiFiles"
+                >上传批量文件</el-button
+              >
+            </el-col>
+            <el-col :span="4">
+              <div style="display: inline-block">
+                <el-icon><arrow-left-bold /></el-icon>
+                <el-icon><arrow-right-bold /></el-icon>
+              </div>
+              <div
+                style="
+                  border: solid;
+                  display: inline-block;
+                  width: 200px;
+                  padding: 10px;
+                  text-align: left;
+                "
+              >
+                路径：
+                {{ fileRoute }}
+              </div>
+            </el-col>
+            <el-col :span="4">
+    <el-input
+      v-model="searchContent"
+      placeholder="请输入搜索内容"
+      class="input-with-select"
+      @click="freshList"
+    >
+      <template #prepend>
+        <el-select v-model="searchItem" placeholder="Select" style="width: 80px">
+                <el-option
+                  v-for="item in searchOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+        </el-select>
+      </template>
+      <template #append>
+        <el-button :icon="Search"></el-button>
+      </template>
+    </el-input>
+            </el-col>
+            <el-col :span="1"> Sort By: </el-col>
+            <el-col :span="1">
+              <el-select
+                v-model="pageInfo.sortField"
+                class="m-2"
+                placeholder="Select"
+                size="large"
+              >
+                <el-option
+                  v-for="item in sortOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+            </el-col>
+            <el-col :span="1">
+              <el-select
+                v-model="pageInfo.asc"
+                class="m-2"
+                placeholder="Select"
+                size="large"
+              >
+                <el-option
+                  v-for="item in ascOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
             </el-col>
           </el-row>
           <el-row style="line-height: 80%; min-height: 500px; margin-top: 10px">
@@ -60,10 +114,10 @@
               fit="false"
               style="background-color: #e9eef3; width: 100%; line-height: 30px"
             >
-              <el-table-column width="50">
-                <!-- <template #header>
-                    <span class="demonstration">操作</span>
-                  </template> -->
+              <el-table-column label="名称">
+                <template #header>
+                  <span class="demonstration">名称</span>
+                </template>
                 <template #default="scope">
                   <img
                     v-if="scope.row.type === 'folder'"
@@ -81,15 +135,12 @@
                     alt="Safari"
                     title="Safari"
                   />
-                  <!-- <avatar
-                      v-if="scope.row.type === 'file'"
-                      :size="24"
-                      :rounded="false"
-                      :username="scope.row.name"
-                    ></avatar> -->
+                  <span @click="intoFolder(scope.$index, scope.row)">
+                    {{ scope.row.name }}
+                  </span>
                 </template>
               </el-table-column>
-              <el-table-column label="名称" prop="name" />
+
               <el-table-column label="时间" prop="date" />
               <el-table-column label="描述" prop="description" />
               <el-table-column>
@@ -119,12 +170,12 @@
           <el-row style="line-height: 10%">
             <el-pagination
               style="background: #e9eef3; margin-top: 10px; margin: 0 auto"
-              v-model:currentPage="pageInfo.currentPage"
+              v-model:page="pageInfo.page"
               v-model:page-size="pageInfo.pageSize"
               :page-sizes="[10, 15, 20, 25]"
               :disabled="disabled"
               :background="background"
-              layout="total, sizes, prev, pager, next, jumper"
+              layout="sizes, prev, pager, next, jumper"
               :total="10"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
@@ -147,50 +198,116 @@ export default {
 import { ElMessage } from "element-plus";
 import { ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
+import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
 
 import { todo } from "@/utils/littleTools.js";
 import {
-  createCatalog,
-  updateFile,
   downloadFile,
   deleteFile,
-  deleteFolder,
-  getDataList,
 } from "@/api/data";
+import{
+  createCatalog,
+  deleteFolder,
+  getCatalog,
+  findByIdAndPage,
+  findByItems,
+} from "@/api/catalog"
 import FileCatalog from "./components/fileDialog";
 
-// 新建文件的对话框的控制
-const fileVisible = ref(false);
-const changeFileVisible = () => {
-  console.log("test");
-  fileVisible.value = !fileVisible.value;
-};
-
+// 搜索条件
 const pageInfo = reactive({
-  isPrivate: true,
-  content: "", // 查询内容
+  page: 1, // 当前页码
   pageSize: 10,
-  currentPage: 1, // 当前页码
+  asc: false, // 排序
+  sortField: "date",
 });
+const sortOptions = ref([
+  { label: "名称", value: "name" },
+  { label: "时间", value: "date" },
+  { label: "类型", value: "type" },
+  { label: "点击量", value: "clicks" },
+])
+const ascOptions = ref([
+  {label: "升序", value: true},
+  {label: "降序", value: false}
+])
+const searchOptions = ref([
+  { label: "名称", value: "name" },
+  { label: "描述", value: "description" },
+]);
+const searchItem = ref("name");
+const searchContent = ref("");
 
 const store = useStore();
 const user = reactive(store.getters["user/getUser"]);
 const catalogId = ref(store.getters["catalog/getCatalogId"]);
 const list = ref([]);
 const totalSize = ref(0);
-const freshList = async () => {
-  const res = await getDataList(catalogId.value);
+const fileRoute = ref("/root");
+// 新建文件的对话框的控制
+const fileVisible = ref(false);
+const changeFileVisible = () => {
+  fileVisible.value = !fileVisible.value;
+};
+
+const getRoot = async () => {
+  const res = await getCatalog(catalogId.value);
   list.value = res.data.children;
   totalSize.value = list.value.length;
 };
-freshList();
+getRoot();
+
+const freshList = async () => {
+  try {
+      let res;
+  if(searchContent.value == '') {
+    console.log('freshList')
+    console.log('catalogId: ', catalogId.value)
+    console.log('pageInfo', pageInfo)
+    res = await findByIdAndPage(catalogId.value, pageInfo)
+  } else {
+    res = await findByItems(catalogId.value, searchItem.value, searchContent.value, pageInfo)
+  }
+  list.value = res.data.children;
+  store.commit('catalog/record', res.data.id)
+  fileRoute.value = fileRoute.value + '/' + res.data.name
+  } catch (err) {
+    ElMessage({
+      showClose: true,
+      type: "error",
+      message: "查询错误：" + err
+    })
+  }
+};
+
+const intoFolder = (index, row) => {
+  if (row.type == "folder") {
+    catalogId.value = row.id;
+    freshList();
+  } else {
+    // todo: 这里可以写一个显示文件的关系表
+    todo("click file");
+  }
+};
+
+const catalogRedo = () => {
+  catalogId.value = store.commit('catalog/redo')
+  freshList()
+}
+
+const catalogUndo = () => {
+  catalogId.value = store.commit('catalog/undo')
+  freshList()
+}
 
 const handleSizeChange = (val) => {
-  console.log(`${val} items per page`);
+  pageInfo.pageSize = val;
+  freshList();
 };
 
 const handleCurrentChange = (val) => {
-  console.log(`current page: ${val}`);
+  pageInfo.page = val;
+  freshList();
 };
 
 const addFolder = () => {
@@ -226,6 +343,14 @@ const addFile = (data) => {
   console.log("data: ", data);
   list.value.push(data);
 };
+
+const uploadBigFile = () => {
+  todo('upload big file')
+}
+
+const uploadMultiFiles = () => {
+  todo('upload multi files')
+}
 
 const handleDownload = (index, row) => {
   if (row.type === "file") {

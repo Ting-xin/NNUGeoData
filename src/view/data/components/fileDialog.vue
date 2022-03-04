@@ -62,13 +62,13 @@ import { reactive, ref, unref, watchEffect } from "vue";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
 
-import { updateFile } from "@/api/data.js";
+import { updateFile } from "@/api/data";
 
 const props = defineProps({
   visible: {
     type: Boolean,
     defalut: false,
-  },
+  }
 });
 const emit = defineEmits(["changeVisible"]);
 

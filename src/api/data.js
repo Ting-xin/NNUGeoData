@@ -1,25 +1,5 @@
 import service from '@/utils/request';
 
-// 查询目录
-export function getDataList(id) {
-    return service.get('/catalog', {
-        params:{
-            id: id
-        }
-    })
-}
-
-// 新建文件夹
-export function createCatalog(data) {
-    console.log('createCatalog: ', data)
-    return service.post('/catalog', data)
-}
-
-// 删除文件夹
-export function deleteFolder(data) {
-    return service.delete('/catalog', {params: data})
-}
-
 // 上传文件
 export function updateFile(data) {
     console.log('uploadFile: ', data)
