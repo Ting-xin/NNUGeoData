@@ -176,7 +176,7 @@
               :disabled="disabled"
               :background="background"
               layout="sizes, prev, pager, next, jumper"
-              :total="10"
+              :total="totalSize"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
             >
