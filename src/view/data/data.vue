@@ -34,7 +34,7 @@
             <el-col :span="4">
               <div style="display: inline-block" @click="catalogUndo">
                 <el-icon><arrow-left-bold /></el-icon>
-                <span>返回</span>
+                <span>回退</span>
               </div>
               <div style="display: inline-block" @click="catalogRedo">
                 <el-icon><arrow-right-bold /></el-icon>
@@ -269,9 +269,6 @@ const freshList = async () => {
   try {
     let res;
     if (searchContent.value == "") {
-      console.log("freshList");
-      console.log("catalogId: ", catalogId.value);
-      console.log("pageInfo", pageInfo);
       res = await findByIdAndPage(catalogId.value, pageInfo);
     } else {
       res = await findByItems(
@@ -287,7 +284,6 @@ const freshList = async () => {
       item.date = temp.toLocaleString();
     });
     total.value = res.data.total
-    store.commit("catalog/record", res.data.id);
   } catch (err) {
     ElMessage({
       showClose: true,
@@ -302,6 +298,7 @@ freshList();
 const intoFolder = (index, row) => {
   if (row.type == "folder") {
     catalogId.value = row.id;
+    store.commit('catalog/record', catalogId.value)
     freshList();
     fileRoute.value = fileRoute.value + "/" + res.data.name;
   } else {
@@ -311,13 +308,26 @@ const intoFolder = (index, row) => {
 };
 
 const catalogRedo = async () => {
-  catalogId.value = await store.commit("catalog/redo");
+  store.commit("catalog/redo");
+  let temp = store.getters['catalog/getCatalogId']
+  if(catalogId.value == temp) {
+    ElMessage({
+      message: "已经是最新页面",
+      type: "warning"
+    })
+  } else {
   freshList();
+  }
 };
 
 const catalogUndo = async () => {
-  catalogId.value = await store.commit("catalog/undo");
-  freshList();
+  store.commit("catalog/undo");
+  let temp = store.getters['catalog/getCatalogId']
+  if(catalogId.value == temp) {
+    
+  } else {
+    freshList();
+  }
 };
 
 const handleSizeChange = (val) => {
@@ -341,15 +351,7 @@ const addFolder = () => {
         message: "新建文件夹成功",
         type: "success",
       });
-      let data = {
-        type: "folder",
-        descriptoin: "",
-        clicks: 0,
-      };
-      data.id = res.data.id;
-      data.name = res.data.name;
-      data.date = res.data.date;
-      list.value.push(data);
+      freshList()
     })
     .catch((err) => {
       ElMessage({
@@ -359,10 +361,6 @@ const addFolder = () => {
     });
 };
 
-const addFile = (data) => {
-  console.log("data: ", data);
-  list.value.push(data);
-};
 
 const uploadBigFile = () => {
   todo("upload big file");
@@ -407,9 +405,7 @@ const handleDelete = (index, row) => {
   if (row.type === "file") {
     deleteFile({ id: row.id, catalogId: catalogId.value })
       .then((res) => {
-        console.log("data.value: ", list.value);
-        list.splice(index, 1);
-        console.log("data.value: ", list.value);
+        freshList()
         ElMessage({
           message: "删除文件成功",
           type: "success",
@@ -424,6 +420,7 @@ const handleDelete = (index, row) => {
   } else if (row.type === "folder") {
     deleteFolder({ id: row.id })
       .then((res) => {
+        freshList()
         ElMessage({
           message: "删除文件夹成功",
           type: "success",

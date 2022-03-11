@@ -26,18 +26,14 @@ export default {
       state.stackCatalog.push(catalogId)
     },
     redo(state) {
-      console.log("stack: ", state.stackCatalog)
-      console.log('cursor: ', state.cursor)
       if(state.cursor < state.stackCatalog.length - 1)
         state.cursor += 1
-      return state.stackCatalog[state.cursor]
     },
     undo(state) {
-      console.log("stack: ", state.stackCatalog)
+      console.log("stack: ", state.stackCatalog.length)
       console.log('cursor: ', state.cursor)
       if(state.cursor > 0) 
         state.cursor -= 1
-      return state.stackCatalog[state.cursor]
     }
   },
   getters: {
