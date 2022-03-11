@@ -22,20 +22,25 @@
               >
             </el-col>
             <el-col :span="2">
+              <el-button type="primary" size="large" @click="uploadMultiFiles"
+                >上传文件夹</el-button
+              >
+            </el-col>
+            <el-col :span="2">
               <el-button type="primary" size="large" @click="uploadBigFile"
                 >上传大文件</el-button
               >
             </el-col>
-            <el-col :span="2">
-              <el-button type="primary" size="large" @click="uploadMultiFiles"
-                >上传批量文件</el-button
-              >
-            </el-col>
             <el-col :span="4">
-              <div style="display: inline-block">
+              <div style="display: inline-block" @click="catalogUndo">
                 <el-icon><arrow-left-bold /></el-icon>
-                <el-icon><arrow-right-bold /></el-icon>
+                <span>返回</span>
               </div>
+              <div style="display: inline-block" @click="catalogRedo">
+                <el-icon><arrow-right-bold /></el-icon>
+                <span>前进</span>
+              </div>
+
               <div
                 style="
                   border: solid;
@@ -50,27 +55,31 @@
               </div>
             </el-col>
             <el-col :span="4">
-    <el-input
-      v-model="searchContent"
-      placeholder="请输入搜索内容"
-      class="input-with-select"
-      @click="freshList"
-    >
-      <template #prepend>
-        <el-select v-model="searchItem" placeholder="Select" style="width: 80px">
-                <el-option
-                  v-for="item in searchOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-        </el-select>
-      </template>
-      <template #append>
-        <el-button :icon="Search"></el-button>
-      </template>
-    </el-input>
+              <el-input
+                v-model="searchContent"
+                placeholder="请输入搜索内容"
+                class="input-with-select"
+                @click="freshList"
+              >
+                <template #prepend>
+                  <el-select
+                    v-model="searchItem"
+                    placeholder="Select"
+                    style="width: 80px"
+                  >
+                    <el-option
+                      v-for="item in searchOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    >
+                    </el-option>
+                  </el-select>
+                </template>
+                <template #append>
+                  <el-button :icon="Search" @click="freshList"></el-button>
+                </template>
+              </el-input>
             </el-col>
             <el-col :span="1"> Sort By: </el-col>
             <el-col :span="1">
@@ -79,12 +88,14 @@
                 class="m-2"
                 placeholder="Select"
                 size="large"
+                @click="freshList"
               >
                 <el-option
                   v-for="item in sortOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
+                  @click="freshList"
                 >
                 </el-option>
               </el-select>
@@ -143,6 +154,7 @@
 
               <el-table-column label="时间" prop="date" />
               <el-table-column label="描述" prop="description" />
+              <el-table-column label="点击量" prop="clicks" />
               <el-table-column>
                 <template #header>
                   <span class="demonstration">操作</span>
@@ -168,19 +180,18 @@
             </el-table>
           </el-row>
           <el-row style="line-height: 10%">
+            <div style="background: #e9eef3; margin-top: 10px; margin: 0 auto">
+            <span>共{{total}}条</span>
             <el-pagination
-              style="background: #e9eef3; margin-top: 10px; margin: 0 auto"
-              v-model:page="pageInfo.page"
-              v-model:page-size="pageInfo.pageSize"
+              :current-page="pageInfo.page"
+              :page-size="pageInfo.pageSize"
               :page-sizes="[10, 15, 20, 25]"
-              :disabled="disabled"
-              :background="background"
+              :total="total"
               layout="sizes, prev, pager, next, jumper"
-              :total="totalSize"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-            >
-            </el-pagination>
+            />
+            </div>
           </el-row>
         </el-col>
       </el-row>
@@ -201,17 +212,14 @@ import { useStore } from "vuex";
 import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
 
 import { todo } from "@/utils/littleTools.js";
+import { downloadFile, deleteFile } from "@/api/data";
 import {
-  downloadFile,
-  deleteFile,
-} from "@/api/data";
-import{
   createCatalog,
   deleteFolder,
   getCatalog,
   findByIdAndPage,
   findByItems,
-} from "@/api/catalog"
+} from "@/api/catalog";
 import FileCatalog from "./components/fileDialog";
 
 // 搜索条件
@@ -226,11 +234,11 @@ const sortOptions = ref([
   { label: "时间", value: "date" },
   { label: "类型", value: "type" },
   { label: "点击量", value: "clicks" },
-])
+]);
 const ascOptions = ref([
-  {label: "升序", value: true},
-  {label: "降序", value: false}
-])
+  { label: "升序", value: true },
+  { label: "降序", value: false },
+]);
 const searchOptions = ref([
   { label: "名称", value: "name" },
   { label: "描述", value: "description" },
@@ -242,7 +250,7 @@ const store = useStore();
 const user = reactive(store.getters["user/getUser"]);
 const catalogId = ref(store.getters["catalog/getCatalogId"]);
 const list = ref([]);
-const totalSize = ref(0);
+const total = ref(0);
 const fileRoute = ref("/root");
 // 新建文件的对话框的控制
 const fileVisible = ref(false);
@@ -250,55 +258,67 @@ const changeFileVisible = () => {
   fileVisible.value = !fileVisible.value;
 };
 
-const getRoot = async () => {
-  const res = await getCatalog(catalogId.value);
-  list.value = res.data.children;
-  totalSize.value = list.value.length;
-};
-getRoot();
+// const getRoot = async () => {
+//   const res = await getCatalog(catalogId.value);
+//   list.value = res.data.children;
+//   total.value = list.value.length;
+// };
+// getRoot();
 
 const freshList = async () => {
   try {
-      let res;
-  if(searchContent.value == '') {
-    console.log('freshList')
-    console.log('catalogId: ', catalogId.value)
-    console.log('pageInfo', pageInfo)
-    res = await findByIdAndPage(catalogId.value, pageInfo)
-  } else {
-    res = await findByItems(catalogId.value, searchItem.value, searchContent.value, pageInfo)
-  }
-  list.value = res.data.children;
-  store.commit('catalog/record', res.data.id)
-  fileRoute.value = fileRoute.value + '/' + res.data.name
+    let res;
+    if (searchContent.value == "") {
+      console.log("freshList");
+      console.log("catalogId: ", catalogId.value);
+      console.log("pageInfo", pageInfo);
+      res = await findByIdAndPage(catalogId.value, pageInfo);
+    } else {
+      res = await findByItems(
+        catalogId.value,
+        searchItem.value,
+        searchContent.value,
+        pageInfo
+      );
+    }
+    list.value = res.data.children;
+    list.value.forEach((item) => {
+      let temp = new Date(item.date);
+      item.date = temp.toLocaleString();
+    });
+    total.value = res.data.total
+    store.commit("catalog/record", res.data.id);
   } catch (err) {
     ElMessage({
       showClose: true,
       type: "error",
-      message: "查询错误：" + err
-    })
+      message: "查询错误：" + err,
+    });
   }
 };
+freshList.bind(this);
+freshList();
 
 const intoFolder = (index, row) => {
   if (row.type == "folder") {
     catalogId.value = row.id;
     freshList();
+    fileRoute.value = fileRoute.value + "/" + res.data.name;
   } else {
     // todo: 这里可以写一个显示文件的关系表
     todo("click file");
   }
 };
 
-const catalogRedo = () => {
-  catalogId.value = store.commit('catalog/redo')
-  freshList()
-}
+const catalogRedo = async () => {
+  catalogId.value = await store.commit("catalog/redo");
+  freshList();
+};
 
-const catalogUndo = () => {
-  catalogId.value = store.commit('catalog/undo')
-  freshList()
-}
+const catalogUndo = async () => {
+  catalogId.value = await store.commit("catalog/undo");
+  freshList();
+};
 
 const handleSizeChange = (val) => {
   pageInfo.pageSize = val;
@@ -345,12 +365,12 @@ const addFile = (data) => {
 };
 
 const uploadBigFile = () => {
-  todo('upload big file')
-}
+  todo("upload big file");
+};
 
 const uploadMultiFiles = () => {
-  todo('upload multi files')
-}
+  todo("upload multi files");
+};
 
 const handleDownload = (index, row) => {
   if (row.type === "file") {

@@ -2,7 +2,7 @@
 export default {
   namespaced: true,
   state: {
-    cursor: -1,
+    cursor: 0,
     stackCatalog: [],
   },
   mutations: {
@@ -15,18 +15,27 @@ export default {
       state.stackCatalog.push(catalogId)
     },
     record(state, catalogId) {
-      while(state.cursor < state.stackCatalog.length - 1) {
+      console.log("stack: ", state.stackCatalog)
+      console.log('cursor: ', state.cursor)
+      while(state.cursor < state.stackCatalog.length) {
         state.stackCatalog.pop()
       }
+      state.cursor = state.stackCatalog.length - 1
+      console.log("stack: ", state.stackCatalog)
+      console.log('cursor: ', state.cursor)
       state.stackCatalog.push(catalogId)
     },
     redo(state) {
+      console.log("stack: ", state.stackCatalog)
+      console.log('cursor: ', state.cursor)
       if(state.cursor < state.stackCatalog.length - 1)
         state.cursor += 1
       return state.stackCatalog[state.cursor]
     },
     undo(state) {
-      if(state.cursor > -1) 
+      console.log("stack: ", state.stackCatalog)
+      console.log('cursor: ', state.cursor)
+      if(state.cursor > 0) 
         state.cursor -= 1
       return state.stackCatalog[state.cursor]
     }
