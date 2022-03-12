@@ -82,20 +82,19 @@
               </el-input>
             </el-col>
             <el-col :span="1"> Sort By: </el-col>
-            <el-col :span="1">
+            <el-col :span="2">
               <el-select
                 v-model="pageInfo.sortField"
                 class="m-2"
                 placeholder="Select"
                 size="large"
-                @click="freshList"
+                @change="freshList"
               >
                 <el-option
                   v-for="item in sortOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
-                  @click="freshList"
                 >
                 </el-option>
               </el-select>
@@ -106,6 +105,7 @@
                 class="m-2"
                 placeholder="Select"
                 size="large"
+                @change="freshList"
               >
                 <el-option
                   v-for="item in ascOptions"
@@ -279,10 +279,12 @@ const freshList = async () => {
       );
     }
     list.value = res.data.children;
+    if(list.value) {
     list.value.forEach((item) => {
       let temp = new Date(item.date);
       item.date = temp.toLocaleString();
     });
+    }
     total.value = res.data.total
   } catch (err) {
     ElMessage({
