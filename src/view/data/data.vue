@@ -31,7 +31,7 @@
                 >上传大文件</el-button
               >
             </el-col>
-            <el-col :span="4">
+            <el-col :span="8">
               <div style="display: inline-block" @click="catalogUndo">
                 <el-icon><arrow-left-bold /></el-icon>
                 <span>回退</span>
@@ -45,7 +45,7 @@
                 style="
                   border: solid;
                   display: inline-block;
-                  width: 200px;
+                  width: 400px;
                   padding: 10px;
                   text-align: left;
                 "
@@ -251,7 +251,7 @@ const user = reactive(store.getters["user/getUser"]);
 const catalogId = ref(store.getters["catalog/getCatalogId"]);
 const list = ref([]);
 const total = ref(0);
-const fileRoute = ref("/root");
+const fileRoute = ref(store.getters["catalog/getCatalogName"]);
 // 新建文件的对话框的控制
 const fileVisible = ref(false);
 const changeFileVisible = () => {
@@ -298,9 +298,9 @@ freshList();
 const intoFolder = (index, row) => {
   if (row.type == "folder") {
     catalogId.value = row.id;
-    store.commit('catalog/record', catalogId.value)
+    fileRoute.value = fileRoute.value + "/" + row.name;
+    store.commit('catalog/record', [catalogId.value, fileRoute.value])
     freshList();
-    fileRoute.value = fileRoute.value + "/" + res.data.name;
   } else {
     // todo: 这里可以写一个显示文件的关系表
     todo("click file");
@@ -309,23 +309,32 @@ const intoFolder = (index, row) => {
 
 const catalogRedo = async () => {
   store.commit("catalog/redo");
-  let temp = store.getters['catalog/getCatalogId']
-  if(catalogId.value == temp) {
+  let tempId = store.getters['catalog/getCatalogId']
+  let tempName = store.getters['catalog/getCatalogName']
+  if(catalogId.value == tempId) {
     ElMessage({
       message: "已经是最新页面",
       type: "warning"
     })
   } else {
-  freshList();
+    catalogId.value = tempId
+    fileRoute.value = tempName
+    freshList();
   }
 };
 
 const catalogUndo = async () => {
   store.commit("catalog/undo");
-  let temp = store.getters['catalog/getCatalogId']
-  if(catalogId.value == temp) {
-    
+  let tempId = store.getters['catalog/getCatalogId']
+  let tempName = store.getters['catalog/getCatalogName']
+  if(catalogId.value == tempId) {
+    ElMessage({
+      message: "不能继续回退",
+      type: "warning"
+    })
   } else {
+    catalogId.value = tempId
+    fileRoute.value = tempName
     freshList();
   }
 };
