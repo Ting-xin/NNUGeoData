@@ -90,8 +90,8 @@ const usePopup = (props, emit) => {
     freshList
   };
 };
+const { visible, handleClose, freshList } = usePopup(props, emit); // 解构
 
-const { visible, handleClose, freshList } = usePopup(props, emit);
 const upload = ref();
 const data = ref();
 const store = useStore();
@@ -150,7 +150,7 @@ const submit = (formEl) => {
       formData.append("data", data.value);
       formData.append("name", fileFormData.name);
       formData.append("description", fileFormData.description);
-      formData.append("id", catalogId.value);
+      formData.append("id", store.getters["catalog/getCatalogId"]);
       updateFile(formData)
         .then((res) => {
           ElMessage({

@@ -229,6 +229,17 @@ const pageInfo = reactive({
   asc: false, // 排序
   sortField: "date",
 });
+
+const pageFunction = () => {
+  const pageInfo = reactive({
+  page: 1, // 当前页码
+  pageSize: 10,
+  asc: false, // 排序
+  sortField: "date",
+});  // 闭包
+
+}
+
 const sortOptions = ref([
   { label: "名称", value: "name" },
   { label: "时间", value: "date" },
