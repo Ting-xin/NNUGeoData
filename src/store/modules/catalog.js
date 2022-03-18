@@ -4,36 +4,43 @@ export default {
   state: {
     cursor: -1,
     stackCatalog: [],
+    stackName: []
   },
   mutations: {
     init(state) {
       state.cursor = -1
       state.stackCatalog = []
+      state.stackName = []
     },
     setRoot(state, catalogId) {
       state.cursor = 0
       state.stackCatalog.push(catalogId)
+      state.stackName.push('/root')
     },
-    record(state, catalogId) {
+    record(state, [catalogId, catalogName]) {
       while(state.cursor < state.stackCatalog.length - 1) {
         state.stackCatalog.pop()
+        state.stackName.pop()
       }
       state.stackCatalog.push(catalogId)
+      state.stackName.push(catalogName)
+      state.cursor += 1
     },
     redo(state) {
       if(state.cursor < state.stackCatalog.length - 1)
         state.cursor += 1
-      return state.stackCatalog[state.cursor]
     },
     undo(state) {
-      if(state.cursor > -1) 
+      if(state.cursor > 0) 
         state.cursor -= 1
-      return state.stackCatalog[state.cursor]
     }
   },
   getters: {
     getCatalogId(state) {
       return state.stackCatalog[state.cursor]
+    },
+    getCatalogName(state) {
+      return state.stackName[state.cursor]
     }
   }
 }
