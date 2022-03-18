@@ -1,191 +1,132 @@
 <template>
   <FileCatalog
-    :visible="fileVisible"
-    :catalogId="catalogId"
-    :pageInfo="pageInfo"
-    @changeVisible="changeFileVisible"
-    @freshList="freshList"
+      :visible="fileVisible"
+      :catalogId="catalogId"
+      :pageInfo="pageInfo"
+      @changeVisible="changeFileVisible"
+      @freshList="freshList"
   />
-  <el-container>
-    <el-main style="padding: 0px">
-      <el-row style="min-height: 300px">
-        <el-col :span="24">
-          <el-row style="line-height: 10%">
-            <el-col :span="2">
-              <el-button type="primary" size="large" @click="addFolder"
-                >新建文件夹</el-button
-              >
-            </el-col>
-            <el-col :span="2">
-              <el-button type="primary" size="large" @click="changeFileVisible"
-                >上传文件</el-button
-              >
-            </el-col>
-            <el-col :span="2">
-              <el-button type="primary" size="large" @click="uploadBigFile"
-                >上传大文件</el-button
-              >
-            </el-col>
-            <el-col :span="2">
-              <el-button type="primary" size="large" @click="uploadMultiFiles"
-                >上传批量文件</el-button
-              >
-            </el-col>
-            <el-col :span="4">
-              <div style="display: inline-block">
-                <el-icon><arrow-left-bold /></el-icon>
-                <el-icon><arrow-right-bold /></el-icon>
-              </div>
-              <div
-                style="
-                  border: solid;
-                  display: inline-block;
-                  width: 200px;
-                  padding: 10px;
-                  text-align: left;
-                "
-              >
-                路径：
-                {{ fileRoute }}
-              </div>
-            </el-col>
-            <el-col :span="4">
-    <el-input
-      v-model="searchContent"
-      placeholder="请输入搜索内容"
-      class="input-with-select"
-      @click="freshList"
-    >
-      <template #prepend>
-        <el-select v-model="searchItem" placeholder="Select" style="width: 80px">
-                <el-option
-                  v-for="item in searchOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-        </el-select>
-      </template>
-      <template #append>
-        <el-button :icon="Search"></el-button>
-      </template>
-    </el-input>
-            </el-col>
-            <el-col :span="1"> Sort By: </el-col>
-            <el-col :span="1">
-              <el-select
-                v-model="pageInfo.sortField"
-                class="m-2"
-                placeholder="Select"
-                size="large"
-              >
-                <el-option
-                  v-for="item in sortOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-col>
-            <el-col :span="1">
-              <el-select
-                v-model="pageInfo.asc"
-                class="m-2"
-                placeholder="Select"
-                size="large"
-              >
-                <el-option
-                  v-for="item in ascOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row style="line-height: 80%; min-height: 500px; margin-top: 10px">
-            <el-table
-              :data="list"
-              :stripe="true"
-              size="large"
-              fit="false"
-              style="background-color: #e9eef3; width: 100%; line-height: 30px"
-            >
-              <el-table-column label="名称">
-                <template #header>
-                  <span class="demonstration">名称</span>
-                </template>
-                <template #default="scope">
-                  <img
-                    v-if="scope.row.type === 'folder'"
-                    src="@/assets/images/folder.png"
-                    width="28"
-                    height="30"
-                    alt="Safari"
-                    title="Safari"
-                  />
-                  <img
-                    v-if="scope.row.type === 'file'"
-                    src="@/assets/images/file.png"
-                    width="28"
-                    height="30"
-                    alt="Safari"
-                    title="Safari"
-                  />
-                  <span @click="intoFolder(scope.$index, scope.row)">
-                    {{ scope.row.name }}
-                  </span>
-                </template>
-              </el-table-column>
+  <el-row>
+    <el-col :span="19">
+      <el-button type="primary" size="small" @click="addFolder" round>新建文件夹</el-button>
+      <el-button type="primary" size="small" @click="changeFileVisible" round>上传文件</el-button>
+      <el-button type="primary" size="small" @click="uploadBigFile" round>上传大文件</el-button>
+      <el-button type="primary" size="small" @click="uploadMultiFiles" round>上传批量文件</el-button>
+    </el-col>
+    <el-col :span="4">
+      <el-input
+          v-model="searchContent"
+          placeholder="请输入搜索内容"
+          class="input-with-select"
+          @click="freshList"
+      >
+        <!--        <template #prepend>-->
+        <!--          <el-select v-model="searchItem" placeholder="Select" style="width: 80px">-->
+        <!--            <el-option-->
+        <!--                v-for="item in searchOptions"-->
+        <!--                :key="item.value"-->
+        <!--                :label="item.label"-->
+        <!--                :value="item.value"-->
+        <!--            >-->
+        <!--            </el-option>-->
+        <!--          </el-select>-->
+        <!--        </template>-->
 
-              <el-table-column label="时间" prop="date" />
-              <el-table-column label="描述" prop="description" />
-              <el-table-column>
-                <template #header>
-                  <span class="demonstration">操作</span>
-                </template>
-                <template #default="scope">
-                  <el-button
-                    size="small"
-                    @click="handleDownload(scope.$index, scope.row)"
-                    >download</el-button
-                  >
-                  <el-button
-                    size="small"
-                    @click="handleEdit(scope.$index, scope.row)"
-                    >Edit</el-button
-                  >
-                  <el-button
-                    size="small"
-                    @click="handleDelete(scope.$index, scope.row)"
-                    >delete</el-button
-                  >
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-row>
-          <el-row style="line-height: 10%">
-            <el-pagination
-              style="background: #e9eef3; margin-top: 10px; margin: 0 auto"
-              v-model:page="pageInfo.page"
-              v-model:page-size="pageInfo.pageSize"
-              :page-sizes="[10, 15, 20, 25]"
-              :disabled="disabled"
-              :background="background"
-              layout="sizes, prev, pager, next, jumper"
-              :total="10"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            >
-            </el-pagination>
-          </el-row>
-        </el-col>
-      </el-row>
-    </el-main>
-  </el-container>
+        <template #append>
+          <el-button style="background-color: #409eff;color: white">搜索</el-button>
+        </template>
+      </el-input>
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-col :span="23">
+      <!--      <el-page-header-->
+      <!--          content="返回"-->
+      <!--          @back="goBack"-->
+      <!--      ></el-page-header>-->
+      <el-breadcrumb :separator-icon="ArrowRight">
+        <el-breadcrumb-item :to="{ path: '/' }">全部文件</el-breadcrumb-item>
+        <el-breadcrumb-item>新建文件夹1</el-breadcrumb-item>
+        <el-breadcrumb-item>新建文件夹2</el-breadcrumb-item>
+        <el-breadcrumb-item>新建文件夹3</el-breadcrumb-item>
+      </el-breadcrumb>
+    </el-col >
+    <el-col :span="1">
+      <el-image
+          style="height:22px"
+          :src="displayImg"
+          @click="switchThumnail"
+      >
+      </el-image>
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-table
+        :data="list"
+        :stripe="true"
+        size="large"
+        fit="false"
+        style="background-color:#eeeeee; width: 100%; line-height: 30px;"
+        :row-style="{}"
+    >
+      <el-table-column sortable label="名称">
+        <template #header>
+          <span class="demonstration">名称</span>
+        </template>
+        <template #default="scope">
+          <img
+              v-if="scope.row.type === 'folder'"
+              src="@/assets/images/folder.png"
+              height="24"
+              alt="Safari"
+              title="Safari"
+          />
+          <img
+              v-if="scope.row.type === 'file'"
+              src="@/assets/images/file.png"
+              height="24"
+              alt="Safari"
+              title="Safari"
+          />
+          <span @click="intoFolder(scope.$index, scope.row)"
+                style="margin-left: 15px"
+          >
+          {{ scope.row.name }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column sortable label="时间" prop="date"/>
+      <el-table-column sortable label="描述" prop="description"/>
+      <el-table-column>
+        <template #header>
+          <span class="demonstration">操作</span>
+        </template>
+        <template #default="scope">
+          <el-button
+              size="small"
+              type="success"
+              @click="handleDownload(scope.$index, scope.row)"
+              plain>download
+          </el-button
+          >
+          <el-button
+              size="small"
+              type="primary"
+              @click="handleEdit(scope.$index, scope.row)"
+              plain>Edit
+          </el-button
+          >
+          <el-button
+              size="small"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              plain>delete
+          </el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-row>
 </template>
 
 <script>
@@ -196,11 +137,11 @@ export default {
 
 <script setup>
 import { ElMessage } from "element-plus";
-import { ref, reactive, computed } from "vue";
+import { ref, reactive} from "vue";
 import { useStore } from "vuex";
-import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
 
 import { todo } from "@/utils/littleTools.js";
+import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
 import {
   downloadFile,
   deleteFile,
@@ -211,8 +152,19 @@ import{
   getCatalog,
   findByIdAndPage,
   findByItems,
-} from "@/api/catalog"
+} from "@/api/catalog";
+
 import FileCatalog from "./components/fileDialog";
+const thumnailImg = require("@/assets/images/thumnail.png");
+const listImg = require("@/assets/images/list.png");
+const displayImg = ref(listImg);
+const goBack = () => {
+  console.log('go back')
+}
+//切换缩略图-列表图标
+const switchThumnail = ()=>{
+  displayImg.value = displayImg.value == thumnailImg ? listImg : thumnailImg;
+}
 
 // 搜索条件
 const pageInfo = reactive({
@@ -259,18 +211,18 @@ getRoot();
 
 const freshList = async () => {
   try {
-      let res;
-  if(searchContent.value == '') {
-    console.log('freshList')
-    console.log('catalogId: ', catalogId.value)
-    console.log('pageInfo', pageInfo)
-    res = await findByIdAndPage(catalogId.value, pageInfo)
-  } else {
-    res = await findByItems(catalogId.value, searchItem.value, searchContent.value, pageInfo)
-  }
-  list.value = res.data.children;
-  store.commit('catalog/record', res.data.id)
-  fileRoute.value = fileRoute.value + '/' + res.data.name
+    let res;
+    if(searchContent.value == '') {
+      console.log('freshList')
+      console.log('catalogId: ', catalogId.value)
+      console.log('pageInfo', pageInfo)
+      res = await findByIdAndPage(catalogId.value, pageInfo)
+    } else {
+      res = await findByItems(catalogId.value, searchItem.value, searchContent.value, pageInfo)
+    }
+    list.value = res.data.children;
+    store.commit('catalog/record', res.data.id)
+    fileRoute.value = fileRoute.value + '/' + res.data.name
   } catch (err) {
     ElMessage({
       showClose: true,
@@ -316,27 +268,27 @@ const addFolder = () => {
     parentId: catalogId.value,
     name: "新建文件夹",
   })
-    .then((res) => {
-      ElMessage({
-        message: "新建文件夹成功",
-        type: "success",
+      .then((res) => {
+        ElMessage({
+          message: "新建文件夹成功",
+          type: "success",
+        });
+        let data = {
+          type: "folder",
+          descriptoin: "",
+          clicks: 0,
+        };
+        data.id = res.data.id;
+        data.name = res.data.name;
+        data.date = res.data.date;
+        list.value.push(data);
+      })
+      .catch((err) => {
+        ElMessage({
+          message: "新建文件夹失败",
+          type: "error",
+        });
       });
-      let data = {
-        type: "folder",
-        descriptoin: "",
-        clicks: 0,
-      };
-      data.id = res.data.id;
-      data.name = res.data.name;
-      data.date = res.data.date;
-      list.value.push(data);
-    })
-    .catch((err) => {
-      ElMessage({
-        message: "新建文件夹失败",
-        type: "error",
-      });
-    });
 };
 
 const addFile = (data) => {
@@ -355,18 +307,18 @@ const uploadMultiFiles = () => {
 const handleDownload = (index, row) => {
   if (row.type === "file") {
     downloadFile({ id: row.id, catalogId: catalogId.value })
-      .then((res) => {
-        ElMessage({
-          message: "下载文件成功",
-          type: "success",
+        .then((res) => {
+          ElMessage({
+            message: "下载文件成功",
+            type: "success",
+          });
+        })
+        .catch((err) => {
+          ElMessage({
+            message: "下载文件失败",
+            type: "error",
+          });
         });
-      })
-      .catch((err) => {
-        ElMessage({
-          message: "下载文件失败",
-          type: "error",
-        });
-      });
   } else {
     todo("download folder");
   }
@@ -386,44 +338,47 @@ const handleEdit = (index, row) => {
 const handleDelete = (index, row) => {
   if (row.type === "file") {
     deleteFile({ id: row.id, catalogId: catalogId.value })
-      .then((res) => {
-        console.log("data.value: ", list.value);
-        list.splice(index, 1);
-        console.log("data.value: ", list.value);
-        ElMessage({
-          message: "删除文件成功",
-          type: "success",
+        .then((res) => {
+          console.log("data.value: ", list.value);
+          list.splice(index, 1);
+          console.log("data.value: ", list.value);
+          ElMessage({
+            message: "删除文件成功",
+            type: "success",
+          });
+        })
+        .catch((err) => {
+          ElMessage({
+            message: "删除文件失败",
+            type: "error",
+          });
         });
-      })
-      .catch((err) => {
-        ElMessage({
-          message: "删除文件失败",
-          type: "error",
-        });
-      });
   } else if (row.type === "folder") {
     deleteFolder({ id: row.id })
-      .then((res) => {
-        ElMessage({
-          message: "删除文件夹成功",
-          type: "success",
+        .then((res) => {
+          ElMessage({
+            message: "删除文件夹成功",
+            type: "success",
+          });
+        })
+        .catch((err) => {
+          ElMessage({
+            message: "删除文件夹失败",
+            type: "error",
+          });
         });
-      })
-      .catch((err) => {
-        ElMessage({
-          message: "删除文件夹失败",
-          type: "error",
-        });
-      });
   }
 };
-</script>
 
+</script>
 <style scoped>
-.demo-pagination-block + .demo-pagination-block {
-  margin-top: 10px;
+
+.el-table{
+  --el-table-header-bg-color:#f5f6f7;
 }
-.demo-pagination-block .demonstration {
-  margin-bottom: 16px;
+.input-with-select{
+  margin-left: 20px;
 }
 </style>
+
+
