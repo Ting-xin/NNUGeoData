@@ -15,7 +15,7 @@ export default {
     setRoot(state, catalogId) {
       state.cursor = 0
       state.stackCatalog.push(catalogId)
-      state.stackName.push('/root')
+      state.stackName.push('根目录')
     },
     record(state, [catalogId, catalogName]) {
       while(state.cursor < state.stackCatalog.length - 1) {
