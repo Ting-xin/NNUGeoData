@@ -90,8 +90,8 @@ const usePopup = (props, emit) => {
     freshList
   };
 };
-const { visible, handleClose, freshList } = usePopup(props, emit); // 解构
 
+const { visible, handleClose, freshList } = usePopup(props, emit);
 const upload = ref();
 const data = ref();
 const store = useStore();
@@ -143,6 +143,7 @@ const resetForm = (formEl) => {
 };
 
 const submit = (formEl) => {
+  console.log("login submit");
   if (!formEl) return;
   formEl.validate((valid) => {
     if (valid) {
@@ -150,7 +151,7 @@ const submit = (formEl) => {
       formData.append("data", data.value);
       formData.append("name", fileFormData.name);
       formData.append("description", fileFormData.description);
-      formData.append("id", store.getters["catalog/getCatalogId"]);
+      formData.append("id", catalogId.value);
       updateFile(formData)
         .then((res) => {
           ElMessage({
@@ -165,7 +166,6 @@ const submit = (formEl) => {
             message: "上传文件失败： " + err,
             type: "error",
           });
-          
         });
     } else {
       ElMessage("请先通过验证");

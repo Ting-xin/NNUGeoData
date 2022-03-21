@@ -22,13 +22,14 @@ export function findByIdAndPage(id, pageInfo) {
 }
 
 // 根据 id 和 search content  和 page 查询目录
-export function findByItems(id, searchItem, searchContent, pageInfo) {
+export function findByItems(id, item, content, pageInfo) {
   return service({
-    url: 'catalog/findbyItems',
+    url: 'catalog/findByItems',
+    method: 'post',
     params:{
       id: id,
-      searchItem: searchItem,
-      searchContent: searchContent, 
+      item: item,
+      content: content, 
     },
     data: pageInfo
   })
