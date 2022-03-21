@@ -93,10 +93,10 @@
         :separator-icon="ArrowRight"
       >
         <el-breadcrumb-item
-          v-for="(item, index) in fileRouteStack"
+          v-for="(item, index) in displayRouteStack"
           :key="index"
           
-        ><a>{{item.name}}</a></el-breadcrumb-item>
+        ><a @click="intoFolder(item.catalogId, item.name)">{{item.name}}</a></el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
     <el-col :span="1">
@@ -388,10 +388,26 @@ const { thumnailImg, listImg, displayImg, switchThumnail } = imgBlock();
 
 const controlCatalogBlock = () => {
   const fileRouteStack = reactive([])
+  const displayRouteStack = reactive([])
   fileRouteStack.push({
     "catalogId": catalogId.value,
     "name": store.getters["catalog/getCatalogName"]
   })
+  const displayRoute = (id) => {
+    while (displayRouteStack.length > 0) {
+      displayRouteStack.pop()
+    }
+    for(let i = 0; i < fileRouteStack.length; ++i) {
+      if(fileRouteStack[i].catalogId != id) {
+        displayRouteStack.push(fileRouteStack[i])
+      } else {
+        displayRouteStack.push(fileRouteStack[i])
+        break
+      }
+    }
+  }
+  displayRoute(catalogId.value)
+
   const clickFolder = (index, row) => {
     if (row.type == "folder") {
       catalogId.value = row.id;
@@ -399,6 +415,7 @@ const controlCatalogBlock = () => {
         "catalogId": catalogId.value,
         "name": row.name
       })
+      displayRoute(catalogId.value)
       store.commit("catalog/record", [catalogId.value, row.name]);
       freshList();
     } else {
@@ -406,6 +423,18 @@ const controlCatalogBlock = () => {
       todo("click file");
     }
   };
+  
+  const intoFolder = (id, name) => {
+    catalogId.value = id;
+      fileRouteStack.push({
+        "catalogId": catalogId.value,
+        "name": name
+      })
+      displayRoute(catalogId.value)
+      store.commit("catalog/record", [catalogId.value, name]);
+      freshList();
+  }
+
   const catalogRedo = async () => {
     store.commit("catalog/redo");
     let tempId = store.getters["catalog/getCatalogId"];
@@ -421,6 +450,7 @@ const controlCatalogBlock = () => {
         "catalogId": catalogId.value,
         "name": tempName
       })
+      displayRoute(catalogId.value)
       freshList();
     }
   };
@@ -437,18 +467,20 @@ const controlCatalogBlock = () => {
     } else {
       catalogId.value = tempId;
       fileRouteStack.pop()
+      displayRoute(catalogId.value)
       freshList();
     }
   };
 
   return {
-    fileRouteStack,
+    displayRouteStack,
     clickFolder,
+    intoFolder,
     catalogRedo,
     catalogUndo,
   };
 };
-const { fileRouteStack, clickFolder, catalogRedo, catalogUndo } = controlCatalogBlock();
+const { displayRouteStack, clickFolder, intoFolder, catalogRedo, catalogUndo } = controlCatalogBlock();
 
 const rowOperationBlock = () => {
   const handleDownload = (index, row) => {
