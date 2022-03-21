@@ -36,5 +36,8 @@ export default {
         getDate(state) {
             return state.user ? state.user.date : ''
         },
+        getPicture(state) {
+            return state.user ? state.user.picture : ''
+        },
     }
 }

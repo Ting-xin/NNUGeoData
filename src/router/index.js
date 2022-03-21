@@ -1,16 +1,18 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import { ElMessage } from "element-plus";
+// import { ElMessage } from "element-plus";
 
 import Navigation from '@/view/navigation.vue'
 import Register from '@/view/user/register.vue'
 import Login from '@/view/user/login.vue'
-import User from '@/view/user/user.vue'
+import User from '@/view/user/userSpace.vue'
+import UserTool from '@/view/user/userTool.vue'
+import UserInfo from '@/view/user/user.vue'
 import Data from '@/view/data/data.vue'
 import Tool from '@/view/tool/tool.vue'
 import Task from '@/view/task/task.vue'
 import Project from '@/view/project/project.vue'
 import Help from '@/view/help/help.vue'
-import { ElMessageBox } from 'element-plus';
+// import { ElMessageBox } from 'element-plus';
 
 const routes = [
     {
@@ -31,7 +33,24 @@ const routes = [
             {
                 path: '/user',
                 name: 'user',
-                component: User
+                component: User,
+                children:[
+                    {
+                        path: '/save',
+                        name: 'save',
+                        component: UserTool
+                    },
+                    {
+                        path: '/info',
+                        name: 'info',
+                        component: UserInfo
+                    },
+                    {
+                        path: '/dataSpace',
+                        name: 'dataSpace',
+                        component: Data
+                    },
+                ],
             },
             {
                 path: '/data',
