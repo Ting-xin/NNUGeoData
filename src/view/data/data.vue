@@ -41,9 +41,9 @@
         </template>
       </el-input>
     </el-col>
-                <el-col :span="2" style="position: relative; text-align: center">
-                  <span class='block-vertical-center'>Sort By: </span>
-                </el-col>
+            <el-col :span="2" style="position: relative; text-align: center">
+              <span class='block-vertical-center'>Sort By: </span>
+            </el-col>
             <el-col :span="2">
               <el-select
                 v-model="pageInfo.sortField"
@@ -91,10 +91,12 @@
     <el-col :span="20">
       <el-breadcrumb
         :separator-icon="ArrowRight"
-        style="position: absolute; top: 30%"
       >
-        <el-breadcrumb-item>根目录</el-breadcrumb-item>
-        <el-breadcrumb-item>新建文件夹1</el-breadcrumb-item>
+        <el-breadcrumb-item
+          v-for="(item, index) in fileRouteStack"
+          :key="index"
+          
+        ><a>{{item.name}}</a></el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
     <el-col :span="1">
@@ -181,13 +183,13 @@
   </el-row>
   <el-row style="line-height: 10%">
     <div style="margin: 0 auto">
-      <!-- <span>共{{total}}条</span> -->
+      <span class="block-vertical-center" style="left: 35%">共{{total}}条</span>
       <el-pagination
         :current-page="pageInfo.page"
         :page-size="pageInfo.pageSize"
         :page-sizes="[10, 15, 20, 25]"
         :total="total"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -238,14 +240,17 @@ const freshList = async () => {
         pageInfo
       );
     }
+    if(res.data.children) {
     list.value = res.data.children;
-    if (list.value) {
-      list.value.forEach((item) => {
-        let temp = new Date(item.date);
-        item.date = temp.toLocaleString();
-      });
+    list.value.forEach((item) => {
+      let temp = new Date(item.date);
+      item.date = temp.toLocaleString();
+    });
+    } else {
+      list.value = []
     }
-    total.value = res.data.total;
+
+    total.value = res.data.total
   } catch (err) {
     ElMessage({
       showClose: true,
@@ -253,7 +258,7 @@ const freshList = async () => {
       message: "查询错误：" + err,
     });
   }
-};
+}
 return {
   catalogId,
   list,
@@ -382,7 +387,7 @@ const imgBlock = () => {
 const { thumnailImg, listImg, displayImg, switchThumnail } = imgBlock();
 
 const controlCatalogBlock = () => {
-  const fileRouteStack = []
+  const fileRouteStack = reactive([])
   fileRouteStack.push({
     "catalogId": catalogId.value,
     "name": store.getters["catalog/getCatalogName"]
