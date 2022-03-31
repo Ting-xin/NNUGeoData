@@ -95,7 +95,6 @@
         <el-breadcrumb-item
           v-for="(item, index) in displayRouteStack"
           :key="index"
-          
         ><a @click="intoFolder(item.catalogId, item.name)">{{item.name}}</a></el-breadcrumb-item>
       </el-breadcrumb>
     </el-col>
