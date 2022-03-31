@@ -12,7 +12,8 @@ import 'element-plus/dist/index.css'
 
 import store from '@/store/index'
 
-const app = createApp(App)
+const app = createApp(App,{data:()=> state})
+
 
 app
   .use(store)

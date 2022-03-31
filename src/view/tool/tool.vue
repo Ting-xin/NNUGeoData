@@ -1,153 +1,221 @@
 <template>
-  <el-button type="text" @click="visible = true"
-    >open a Form nested Dialog</el-button
-  >
-  <el-dialog v-model="visible" title="上传文件" width="30%" center @close="handleClose">
-    <el-form
-      ref="ruleFormRef"
-      :model="ruleForm"
-      :rules="rules"
-      status-icon
-      label-width="100px"
-      size="medium"
-    >
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="ruleForm.name" autocomplete="off"></el-input>
-      </el-form-item>
-      <el-form-item label="文件" prop="data">
-  <el-upload
-    ref="upload"
-    :limit="1"
-    :before-upload="beforeUpload"
-    :on-exceed="handleExceed"
-    :show-file-list="false"
-  >
-    <template #trigger>
-      <el-button type="primary" style="width: 150px">选择文件</el-button>
-    </template>
-    <span></span>
-  </el-upload>
-      </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="ruleForm.description" autocomplete="off"></el-input>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button type="info" @click="visible = false" size="medium"
-          >取消</el-button
-        >
-        <el-button type="warning" @click="resetForm(ruleFormRef)" size="medium"
-          >重置</el-button
-        >
-        <el-button type="primary" @click="submit(ruleFormRef)" size="medium"
-          >确定</el-button
-        >
-      </span>
-    </template>
-  </el-dialog>
+  <el-row>
+    <el-button>创建工具</el-button>
+    <el-button @click="invokeTool">调用工具</el-button>
+  </el-row>
+  <el-row>
+<!--    <router-view ></router-view>-->
+  </el-row>
+<el-row>
+  <el-col :span="24" >
+    <el-steps :active="active" finish-status="success" simple>
+      <el-step title="基础信息" @click="clickStepOne"/>
+      <el-step title="资源" @click="clickStepTwo"/>
+      <el-step title="详情" @click="clickStepThree"/>
+      <el-step title="作者" @click="clickStepFour"/>
+    </el-steps>
+  </el-col>
+
+</el-row>
+  <el-row></el-row>
+  <el-row></el-row>
+  <el-row>
+    <div class="stepContent" v-show="active == 0">
+      <el-form
+          :label-position="labelPosition"
+          label-width="150px"
+          :model="formLabelAlign"
+          style="max-width: 800px"
+      >
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="formLabelAlign.name"/>
+        </el-form-item>
+        <el-form-item label="Bind Data Template">
+          <el-input v-model="formLabelAlign.region"/>
+        </el-form-item>
+        <el-form-item label="Keywords">
+          <el-input v-model="formLabelAlign.type"/>
+        </el-form-item>
+        <el-form-item label="Overview">
+          <el-input v-model="formLabelAlign.Overview"/>
+        </el-form-item>
+        <el-form-item label="Method">
+          <el-radio-group v-model="radiogroup1">
+            <el-radio-button label="Conversion" />
+            <el-radio-button label="Processing" />
+            <el-radio-button label="Visualization" />
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="Status">
+          <el-radio-group v-model="radiogroup2">
+            <el-radio-button label="Public" />
+            <el-radio-button label="Discoverable" />
+            <el-radio-button label="Visualization" />
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="Content Type">
+            <el-radio v-model="radio1" label="1">OpenGMS Data-Service Package</el-radio>
+            <el-radio v-model="radio1" label="2">Source Code</el-radio>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="stepContent" v-show="active == 1">
+      <el-form
+          :label-position="labelPosition"
+          label-width="150px"
+          :model="formLabelAlignResource"
+          style="max-width: 460px"
+      >
+        <el-form-item label="Bind Test Data">
+          <el-button type="primary">Bind Test Data</el-button>
+        </el-form-item>
+        <el-form-item label="Add a Zip File">
+          <el-button type="primary">Add</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="stepContent" v-show="active == 2">
+        <RichTextEditor></RichTextEditor>
+    </div>
+    <div class="stepContent" v-show="active == 3">
+      <el-col :span="8">
+        <el-card shadow="hover"> Authorship </el-card>
+        <el-form :model="ruleForm" status-icon ref="formRef" label-width="120px">
+          <el-row :gutter="20" v-for="(item, index) in ruleForm.fruitConfig" :key="index">
+            <el-col :span="20">
+              <el-form-item label="Name:" prop="'Name' + index">
+                <el-input type="text" v-model="item.Name" autocomplete="off" maxlength="500">
+                </el-input>
+              </el-form-item>
+              <el-form-item label="Affiliation:" :prop="'Affiliation' + index">
+                <el-input type="text" v-model="item.Affiliation" autocomplete="off" maxlength="500">
+                </el-input>
+              </el-form-item>
+              <el-form-item label="Email:" :prop="'Email' + index">
+                <el-input type="text" v-model="item.Email" autocomplete="off" maxlength="500">
+                </el-input>
+              </el-form-item>
+              <el-form-item label="HomePage:" :prop="'Homepage' + index">
+                <el-input type="text" v-model="item.Homepage" autocomplete="off" maxlength="500">
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="4">
+              <el-button @click.prevent="removeFruitConfig(item)">删除</el-button>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-form-item>
+              <el-button type="primary" @click="addFruitConfig">新增</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="submitForm">确 定</el-button>
+            </el-form-item>
+          </el-row>
+        </el-form>
+      </el-col>
+    </div>
+  </el-row>
+  <el-row style="position:absolute;left: 80vw;top:75vh">
+      <el-button style="" @click="next">Next step</el-button>
+  </el-row>
+
 </template>
-<script>
-import { reactive, ref, unref } from "vue";
-import { ElMessage } from "element-plus";
-import { useStore } from "vuex";
-import { updateFile } from "@/api/data";
+<script setup>
+import { reactive, ref ,toRefs} from 'vue'
+import RichTextEditor from "./components/richTextEditor"
+import { useRouter } from "vue-router";
 
-export default {
-  name: "fileCatalog",
-  setup(props) {
-    const visible = ref(false);
-    const upload = ref()
-    const data = ref()
-    let catalogId = JSON.parse(localStorage.getItem("catalog")).id;
-    const ruleForm = reactive({
-      name: "",
-      data: "",
-      description: "",
-    });
-    const ruleFormRef = ref();
-    const store = useStore();
+const router = useRouter();
+const labelPosition = ref('right')
 
-    const rules = reactive({
-      name: [
-        {
-          required: true,
-          message: "请输入名称",
-          trigger: "blur",
-        },
-        {
-          max: 30,
-          message: "名称最长不超过 30 个字符",
-          trigger: "blur",
-        },
-      ],
-      description: [
-        {
-          max: 500,
-          message: "描述最长不超过 500 个字符",
-          trigger: "blur",
-        },
-      ],
-    });
+const formLabelAlign = reactive({
+  name: '',
+  region: '',
+  type: '',
+  Overview:'',
+})
+const formLabelAlignResource = reactive({
+  name: '',
+  Affiliation: '',
+  Email: '',
+  Homepage:'',
+})
+const radiogroup1 = ref('Conversion')
+const radiogroup2 = ref('Public')
+const radio1 = ref('1')
 
-    const beforeUpload = (file) => {
-      console.log('beforeUpload')
-      data.value = file
-    }
+const active = ref(0)
+const next = () => {
+  if (active.value++ > 2) active.value = 0
+}
+const clickStepOne =() => {
+  active.value = 0;
+}
+const clickStepTwo =() => {
+  active.value = 1;
+}
+const clickStepThree =() => {
+  active.value = 2;
+}
+const clickStepFour =() =>{
+  active.value = 3;
 
-    const handleExceed = (files) => {
-      console.log('handleExceed')
-      upload.value.clearFiles()
-      upload.value.handleStart(files[0])
-      data.value = files[0]
-    }
+}
 
-    const resetForm = (formEl) => {
-      if (!formEl) return;
-      formEl.resetFields();
-    };
-    const submit = (formEl) => {
-      console.log("login submit");
-      if (!formEl) return;
-      formEl.validate((valid) => {
-        if (valid) {
-          let formData = new FormData()
-          formData.append('data', data.value)
-          formData.append('name', ruleForm.name)
-          formData.append('description', ruleForm.description)
-          formData.append('id', catalogId)
-          updateFile(formData)
-            .then((res) => {
-              ElMessage({
-                message: "上传文件成功",
-                type: "success",
-              });
-              visible.value = false
-            })
-            .catch((err) => {
-              ElMessage({
-                message: "上传文件失败： " + err,
-                type: "error",
-              });
-            });
-        } else {
-          ElMessage("请先通过验证");
-          return false;
-        }
-      });
-    };
-
-    return {
-      visible,
-      upload,
-      ruleForm,
-      ruleFormRef,
-      rules,
-      beforeUpload,
-      handleExceed,
-      resetForm,
-      submit,
-    };
+// 参数声明
+const formRef = ref(null);
+const state = reactive({
+  ruleForm: {
+    fruitConfig: [{
+      name: '',
+      Affiliation: '',
+      Email: '',
+      Homepage:'',
+    }]
   },
+})
+
+
+const addFruitConfig = () => { // 新增水果、售价行
+  state.ruleForm.fruitConfig.push({
+    name: '',
+    Affiliation: '',
+    Email: '',
+    Homepage:'',
+  })
+}
+
+const removeFruitConfig = (item) => { // 删除水果、售价行
+  const index = state.ruleForm.fruitConfig.indexOf(item)
+  if (index !== -1) {
+    state.ruleForm.fruitConfig.splice(index, 1)
+  }
+}
+
+const submitForm = () => { // 点击确定按钮，输出行内数据
+  var fruitConfig = state.ruleForm.fruitConfig;
+  console.log(fruitConfig);
+  console.log("水果名称：" + fruitConfig[0].fruit);
+  console.log("水果售价：" + fruitConfig[0].price);
+}
+
+// 数据解构
+const {
+  ruleForm,
+} = {
+  ...toRefs(state)
 };
+
+//工具调用
+const invokeTool = () =>{
+    router.push("/tool/invokeTool")
+}
 </script>
+<style scoped>
+.stepContent{
+  width:100%;
+  display: flex;
+  justify-content : center;
+}
+</style>

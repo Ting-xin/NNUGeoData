@@ -1,12 +1,11 @@
 <template>
-  <el-container>
+  <el-container style="background-color: white">
     <el-header>
       <el-image
           style="height:70px"
           :src="imgUrl"
           @click="goHome"
       ></el-image>
-
       <template v-if='!visible' >
         <el-button
             id="register-button"
@@ -27,11 +26,12 @@
         />
       </template>
     </el-header>
-    <el-container>
+    <el-scrollbar>
+    <el-container style="width: 1920px">
       <el-aside style="width: 120px;">
         <el-menu
             class="el-menu-vertical-demo"
-            background-color="#2150a2"
+            background-color="#3256a7"
             text-color="#fff"
             active-text-color="#ffd04b"
             @select="handleSelect"
@@ -44,10 +44,11 @@
           <el-menu-item index="help">帮助</el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main style="calc(100vw-120px);margin-left: 120px;background-color: white">
+      <el-main style="margin-left: 120px;background-color: white;">
         <router-view ></router-view>
       </el-main>
     </el-container>
+    </el-scrollbar>
     <el-footer>
       <h2 class="footerTop">
         <i>Open Geographic Modeling and Simulation</i>
@@ -57,6 +58,7 @@
       </p>
     </el-footer>
   </el-container>
+
 </template>
 
 <script>
@@ -87,7 +89,7 @@ const goUser=()=>{
   router.push("/user")
 }
 const goHome=()=>{
-  router.push("/task")
+  router.push("/data")
 }
 const goRegister=()=>{
   router.push("/register")
@@ -100,17 +102,14 @@ const goLogin=()=>{
 
 .el-menu-vertical-demo{
   margin-top: 70px;
-  height: calc(100vh - 130px);
+  height: calc(100vh - 70px);
   padding-left: 20px;
 }
 .el-menu-item{
   font-size: 17px;
 }
 
-.el-footer{
-  height: 60px;
-  background-color: #fefded;
-}
+
 #user-icon {
   position: absolute;
   width: 50px;
@@ -129,23 +128,18 @@ const goLogin=()=>{
 }
 .el-header{
   border-bottom: 1px solid darkgray;
-  /*box-shadow: darkgrey 10px 10px 30px 5px;*/
   background-color: white;
   height: 70px;
 }
-/*.el-footer {*/
-/*  background-color: #1d1e1f;*/
-/*  color: var(--el-text-color-primary);*/
-/*  text-align: center;*/
-/*  line-height: 15px;*/
-/*  height: 80px;*/
-/*}*/
-
+.el-footer{
+  height: 60px;
+  background-color: #fefded;
+  padding-top: 15px;
+}
 .footerTop {
   text-align: center;
   color: #7e6666;
   font-weight: bold;
-  margin-top: 15px;
   font-size: 18px;
 }
 
@@ -154,25 +148,8 @@ const goLogin=()=>{
   color: #7e6666;
   font-size: 0.8em;
 }
-.el-main{
 
-}
-
-/*.body-main {*/
-/*  height: calc(100vh - 141px);*/
-/*  background-color: #e9eef3;*/
-/*  color: var(--el-text-color-primary);*/
-/*  text-align: center;*/
-/*}*/
-
-/*.el-menu--horizontal > .el-menu-item {*/
-/*  font-size: 20px;*/
-/*  color: black;*/
-/*}*/
-
-/*#user-icon[data-v-1632b64f] {*/
-/*  position: unset;*/
-/*}*/
 
 
 </style>
+
