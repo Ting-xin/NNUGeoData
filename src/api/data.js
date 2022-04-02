@@ -18,7 +18,18 @@ export function downloadFile(data) {
         }
     })
 }
-
+// 压缩并下载文件夹
+export function downloadFolder(data) {
+    // return service.get('/file/download', {params: data})
+    return new Promise((resolve, reject) => {
+        try {
+            window.location.href = '/api/file/downloadFolder?id=' + data.id + '&catalogId=' + data.catalogId
+            resolve()
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
 // 删除文件
 export function deleteFile(data) {
     return service.delete('/file', {params: data})

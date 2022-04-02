@@ -20,11 +20,7 @@
         </el-button>
       </template>
       <template v-else>
-        <user-icon
-            id="user-icon"
-            style="width: 40px"
-            @click="goUser"
-        />
+        <img :src="getPic" class="img" @click="goUser"/>
       </template>
     </el-header>
     <el-container>
@@ -79,12 +75,18 @@ const visible = computed(() => {
   let id = store.getters['user/getUserId']
   return  (id && id != '') ? true : false
 })
+const user = computed(() => {
+  return store.getters["user/getUser"];
+});
+const getPic=computed(()=>{
+  return "/api/user/image/"+user.value.id;
+});
 const handleSelect = (key, keyPath) => {
   // 在这里改路由
   router.push("/" + keyPath[0]);
 };
 const goUser=()=>{
-  router.push("/user")
+  router.push("/info")
 }
 const goHome=()=>{
   router.push("/task")
@@ -97,7 +99,13 @@ const goLogin=()=>{
 }
 </script>
 <style scoped>
-
+.img {
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  right: 5%;
+  border-radius: 100px;
+}
 .el-menu-vertical-demo{
   margin-top: 70px;
   height: calc(100vh - 130px);
@@ -154,9 +162,9 @@ const goLogin=()=>{
   color: #7e6666;
   font-size: 0.8em;
 }
-.el-main{
+/* .el-main{
 
-}
+} */
 
 /*.body-main {*/
 /*  height: calc(100vh - 141px);*/

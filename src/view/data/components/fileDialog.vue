@@ -14,9 +14,9 @@
       label-width="100px"
       size="medium"
     >
-      <el-form-item label="名称" prop="name">
+      <!-- <el-form-item label="名称" prop="name">
         <el-input v-model="fileFormData.name" autocomplete="off"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="文件" prop="data">
         <el-upload
           ref="upload"
@@ -126,7 +126,7 @@ const rules = reactive({
 });
 
 const beforeUpload = (file) => {
-  console.log("beforeUpload");
+  
   data.value = file;
 };
 
@@ -148,7 +148,7 @@ const submit = (formEl) => {
     if (valid) {
       let formData = new FormData();
       formData.append("data", data.value);
-      formData.append("name", fileFormData.name);
+      formData.append("name", data.value.name);
       formData.append("description", fileFormData.description);
       formData.append("id", store.getters["catalog/getCatalogId"]);
       updateFile(formData)

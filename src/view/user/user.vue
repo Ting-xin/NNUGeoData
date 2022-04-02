@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div style="text-align:center">
     <!-- <el-dialog :visible.sync="dialogVisible" append-to-body>
     <img width="100%" :src="dialogImageUrl" alt />
   </el-dialog> -->
-
+  <div class="merge" v-if="imgBig"></div>
+<img :src="getPic" v-if="imgBig" class="imgBig" />
     <el-card class="basicInfo" style="width: 40%; height: 80%; margin: 0 auto">
       <div class="picture" v-if="newPic"></div>
       <el-form ref="form" label-width="30%" :label-position="labelPosition">
@@ -13,7 +14,7 @@
         <el-divider></el-divider>
         <el-form-item label="头像:">
           <!-- <label v-if="!isChange">{{}}</label> -->
-          <img :src="getPic" v-if="!isChange" class="img" />
+          <img :src="getPic" v-if="!isChange" class="img" @click="showImgBig"/>
           <label v-if="isChange"
             ><el-upload
               class="picture"
@@ -132,6 +133,24 @@ let dialogFormVisible = ref(false);
 const user = computed(() => {
   return store.getters["user/getUser"];
 });
+let imgBig=ref(false);
+
+function showImgBig () {
+  imgBig.value=true
+ 
+ setTimeout(() => {
+   document.addEventListener("click", fooup);
+ }, 300);
+    
+
+  
+};
+function fooup() {
+      // 取消鼠标监听事件 菜单栏
+
+      imgBig.value = false;
+      document.removeEventListener("click", fooup); // 关掉监听，
+    }
 let newPass = ref("");
 let oldUser = {
   name: user.value.name,
@@ -222,6 +241,23 @@ const getPic=computed(()=>{
 </script>
 
 <style scoped>
+.merge{
+  position: fixed;
+  left: -20%;
+  top: -20%;
+  width: 150%;
+  height: 150%;
+  z-index: 5000;
+  background-color: rgba(2, 11, 63, 0.692);
+}
+.imgBig{
+  position: absolute;
+  left: 20%;
+  top: 20%;
+  width: 30vw;
+  height: 30vw;
+  z-index: 5100;
+}
 .img {
   width: 50px;
   height: 50px;

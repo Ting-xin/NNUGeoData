@@ -1,4 +1,24 @@
 <template>
+  <el-dialog v-model="dialogVisible" title="Tips" width="30%">
+    <span>输入文件分享码</span>
+    <el-input v-model="shareCode" placeholder="Please input" />
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">X</el-button>
+        <el-button type="primary" @click="shareCommit">√</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="folderVis" title="Tips" width="30%">
+    <span>输入名称</span>
+    <el-input v-model="folderName" placeholder="Please input" />
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="folderVis = false">X</el-button>
+        <el-button type="primary" @click="addFolder">√</el-button>
+      </span>
+    </template>
+  </el-dialog>
   <FileCatalog
     :visible="fileVisible"
     :catalogId="catalogId"
@@ -8,11 +28,11 @@
   />
   <el-row>
     <el-col :span="14">
-      <el-button type="info" @click="addFolder">新建文件夹</el-button>
+      <el-button type="info" @click="showFolder">新建文件夹</el-button>
       <el-button type="info" @click="changeFileVisible">上传文件</el-button>
       <el-button type="info" @click="uploadMultiFiles">上传批量文件</el-button>
       <el-button type="info" @click="uploadBigFile">上传大文件</el-button>
-      <el-button type="info" @click="uploadMultiFiles">引入资源</el-button>
+      <el-button type="info" @click="share">引入资源</el-button>
     </el-col>
     <el-col :span="4">
       <el-input
@@ -41,43 +61,43 @@
         </template>
       </el-input>
     </el-col>
-                <el-col :span="2" style="position: relative; text-align: center">
-                  <span class='block-vertical-center'>Sort By: </span>
-                </el-col>
-            <el-col :span="2">
-              <el-select
-                v-model="pageInfo.sortField"
-                class="m-2"
-                placeholder="Select"
-                size="large"
-                @change="freshList"
-              >
-                <el-option
-                  v-for="item in sortOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-col>
-            <el-col :span="1">
-              <el-select
-                v-model="pageInfo.asc"
-                class="m-2"
-                placeholder="Select"
-                size="large"
-                @change="freshList"
-              >
-                <el-option
-                  v-for="item in ascOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-col>
+    <el-col :span="2" style="position: relative; text-align: center">
+      <span class="block-vertical-center">排序: </span>
+    </el-col>
+    <el-col :span="2">
+      <el-select
+        v-model="pageInfo.sortField"
+        class="m-2"
+        placeholder="Select"
+        size="large"
+        @change="freshList"
+      >
+        <el-option
+          v-for="item in sortOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+    </el-col>
+    <el-col :span="1">
+      <el-select
+        v-model="pageInfo.asc"
+        class="m-2"
+        placeholder="Select"
+        size="large"
+        @change="freshList"
+      >
+        <el-option
+          v-for="item in ascOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+    </el-col>
   </el-row>
   <el-row>
     <el-col :span="1">
@@ -89,13 +109,13 @@
       </span>
     </el-col>
     <el-col :span="20">
-      <el-breadcrumb
+      <!-- <el-breadcrumb
         :separator-icon="ArrowRight"
         style="position: absolute; top: 30%"
       >
         <el-breadcrumb-item>根目录</el-breadcrumb-item>
         <el-breadcrumb-item>新建文件夹1</el-breadcrumb-item>
-      </el-breadcrumb>
+      </el-breadcrumb> -->
     </el-col>
     <el-col :span="1">
       <el-image style="height: 22px" :src="displayImg" @click="switchThumnail">
@@ -133,14 +153,24 @@
           />
           <span
             @click="clickFolder(scope.$index, scope.row)"
-            style="margin-left: 15px"
+            style="margin-left: 15px; margin-bottom: 15px"
           >
             {{ scope.row.name }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column sortable :sort-method="dateSort" label="时间" prop="date" />
-      <el-table-column sortable :sort-method="clicksSort" label="点击量" prop="clicks" />
+      <el-table-column
+        sortable
+        :sort-method="dateSort"
+        label="时间"
+        prop="date"
+      />
+      <el-table-column
+        sortable
+        :sort-method="clicksSort"
+        label="点击量"
+        prop="clicks"
+      />
       <el-table-column label="描述" prop="description" />
       <el-table-column>
         <template #header>
@@ -152,28 +182,30 @@
             type="success"
             @click="handleDownload(scope.$index, scope.row)"
             plain
-            >download
+            >下载
           </el-button>
           <el-button
+            class="copybtn"
             size="small"
             type="primary"
-            @click="handleDownload(scope.$index, scope.row)"
+            @click="copywxtap"
+            :data-clipboard-text="scope.row.id"
             plain
-            >share
+            >分享
           </el-button>
           <el-button
             size="small"
             type="info"
             @click="handleEdit(scope.$index, scope.row)"
             plain
-            >Edit
+            >编辑
           </el-button>
           <el-button
             size="small"
             type="danger"
             @click="handleDelete(scope.$index, scope.row)"
             plain
-            >delete
+            >删除
           </el-button>
         </template>
       </el-table-column>
@@ -205,10 +237,11 @@ export default {
 import { ElMessage } from "element-plus";
 import { ref, reactive } from "vue";
 import { useStore } from "vuex";
-
+import Clipboard from "clipboard";
 import { todo } from "@/utils/littleTools.js";
 import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
-import { downloadFile, deleteFile } from "@/api/data";
+import { downloadFile, deleteFile,downloadFolder,updateFile } from "@/api/data";
+import service from "@/utils/request";
 import {
   createCatalog,
   deleteFolder,
@@ -220,58 +253,104 @@ import FileCatalog from "./components/fileDialog";
 
 const store = useStore();
 const user = reactive(store.getters["user/getUser"]);
-
+const dialogVisible = ref(false);
+let folderName=ref("新文件夹")
+let folderVis=ref(false)
+function showFolder(){
+  folderVis.value=true
+}
+function copywxtap() {
+  var clipboard = new Clipboard(".copybtn");
+  clipboard.on("success", (e) => {
+    alert("复制成功");
+    // 释放内存
+    clipboard.destroy();
+  });
+  clipboard.on("error", (e) => {
+    // 不支持复制
+    Talert("该浏览器不支持自动复制");
+    // 释放内存
+    clipboard.destroy();
+  });
+}
 const listBlock = () => {
-const catalogId = ref(store.getters["catalog/getCatalogId"]);
-const list = ref([]);
-const total = ref(0);
-const freshList = async () => {
-  try {
-    let res;
-    if (searchContent.value == "") {
-      res = await findByIdAndPage(catalogId.value, pageInfo);
-    } else {
-      res = await findByItems(
-        catalogId.value,
-        searchItem.value,
-        searchContent.value,
-        pageInfo
-      );
-    }
-    list.value = res.data.children;
-    if (list.value) {
-      list.value.forEach((item) => {
-        let temp = new Date(item.date);
-        item.date = temp.toLocaleString();
+  const catalogId = ref(store.getters["catalog/getCatalogId"]);
+  const list = ref([]);
+  const total = ref(0);
+  const freshList = async () => {
+    try {
+      let res;
+      if (searchContent.value == "") {
+        res = await findByIdAndPage(catalogId.value, pageInfo);
+      } else {
+        res = await findByItems(
+          catalogId.value,
+          searchItem.value,
+          searchContent.value,
+          pageInfo
+        );
+      }
+      list.value = res.data.children;
+      if (list.value) {
+        list.value.forEach((item) => {
+          let temp = new Date(item.date);
+          item.date = temp.toLocaleString();
+        });
+      }
+      total.value = res.data.total;
+    } catch (err) {
+      ElMessage({
+        showClose: true,
+        type: "error",
+        message: "查询错误：" + err,
       });
     }
-    total.value = res.data.total;
-  } catch (err) {
-    ElMessage({
-      showClose: true,
-      type: "error",
-      message: "查询错误：" + err,
-    });
-  }
+  };
+  return {
+    catalogId,
+    list,
+    total,
+    freshList,
+  };
 };
-return {
-  catalogId,
-  list,
-  total,
-  freshList
+const { catalogId, list, total, freshList } = listBlock();
+function share() {
+  dialogVisible.value = true;
 }
+function shareCommit() {
+  dialogVisible.value = false;
+
+  console.log(catalogId.value);
+  let children 
+  service
+    .get("/catalog/findChildrenData", {
+      params: { catalogId: catalogId.value, id: shareCode.value },
+    })
+    .then((res1) => {
+      children = res1.data;
+      service.post("/catalog/copy", children, {
+    params: {
+      catalogId: catalogId.value,
+    },
+  }).then((x)=>{
+    
+  });
+  
+    });
+  
 }
-const {catalogId, list, total, freshList} = listBlock()
-
-
+let shareCode = ref("");
 const resourceBlock = () => {
+  
   const addFolder = () => {
+    folderVis.value=false;
     createCatalog({
       userId: user.id,
       parentId: catalogId.value,
-      name: "新建文件夹",
+      name: folderName.value,
     })
       .then((res) => {
+        
         ElMessage({
           message: "新建文件夹成功",
           type: "success",
@@ -337,32 +416,32 @@ const { searchOptions, searchItem, searchContent } = searchBlock();
 
 const sortBlock = () => {
   const sortOptions = ref([
-  { label: "名称", value: "name" },
-  { label: "时间", value: "date" },
-  { label: "类型", value: "type" },
-  { label: "点击量", value: "clicks" },
-])
+    { label: "名称", value: "name" },
+    { label: "时间", value: "date" },
+    { label: "类型", value: "type" },
+    { label: "点击量", value: "clicks" },
+  ]);
 
-const ascOptions = ref([
-  { label: "升序", value: true },
-  { label: "降序", value: false },
-])
+  const ascOptions = ref([
+    { label: "升序", value: true },
+    { label: "降序", value: false },
+  ]);
 
   const nameSort = (a, b) => {
-    return a.name.localeCompare(b.name)
-  }
+    return a.name.localeCompare(b.name);
+  };
 
   const clicksSort = (a, b) => {
-    return a.clicks >= b.clicks ? 1: 0
-  }
+    return a.clicks >= b.clicks ? 1 : 0;
+  };
   return {
     sortOptions,
     ascOptions,
     nameSort,
-    clicksSort
+    clicksSort,
   };
 };
-const {sortOptions, ascOptions, nameSort, clicksSort} = sortBlock();
+const { sortOptions, ascOptions, nameSort, clicksSort } = sortBlock();
 
 const imgBlock = () => {
   const thumnailImg = require("@/assets/images/thumnail.png");
@@ -382,18 +461,19 @@ const imgBlock = () => {
 const { thumnailImg, listImg, displayImg, switchThumnail } = imgBlock();
 
 const controlCatalogBlock = () => {
-  const fileRouteStack = []
+  const fileRouteStack = [];
   fileRouteStack.push({
-    "catalogId": catalogId.value,
-    "name": store.getters["catalog/getCatalogName"]
-  })
+    catalogId: catalogId.value,
+    name: store.getters["catalog/getCatalogName"],
+  });
   const clickFolder = (index, row) => {
     if (row.type == "folder") {
       catalogId.value = row.id;
+      console.log("conmein")
       fileRouteStack.push({
-        "catalogId": catalogId.value,
-        "name": row.name
-      })
+        catalogId: catalogId.value,
+        name: row.name,
+      });
       store.commit("catalog/record", [catalogId.value, row.name]);
       freshList();
     } else {
@@ -413,9 +493,9 @@ const controlCatalogBlock = () => {
     } else {
       catalogId.value = tempId;
       fileRouteStack.push({
-        "catalogId": catalogId.value,
-        "name": tempName
-      })
+        catalogId: catalogId.value,
+        name: tempName,
+      });
       freshList();
     }
   };
@@ -431,7 +511,7 @@ const controlCatalogBlock = () => {
       });
     } else {
       catalogId.value = tempId;
-      fileRouteStack.pop()
+      fileRouteStack.pop();
       freshList();
     }
   };
@@ -443,7 +523,8 @@ const controlCatalogBlock = () => {
     catalogUndo,
   };
 };
-const { fileRouteStack, clickFolder, catalogRedo, catalogUndo } = controlCatalogBlock();
+const { fileRouteStack, clickFolder, catalogRedo, catalogUndo } =
+  controlCatalogBlock();
 
 const rowOperationBlock = () => {
   const handleDownload = (index, row) => {
@@ -462,7 +543,19 @@ const rowOperationBlock = () => {
           });
         });
     } else {
-      todo("download folder");
+      downloadFolder({ id: row.id, catalogId: catalogId.value })
+        .then((res) => {
+          ElMessage({
+            message: "下载文件夹成功",
+            type: "success",
+          });
+        })
+        .catch((err) => {
+          ElMessage({
+            message: "下载文件夹失败",
+            type: "error",
+          });
+        });
     }
   };
 
@@ -519,7 +612,8 @@ const rowOperationBlock = () => {
     handleDelete,
   };
 };
-const { handleDownload, handleShare, handleEdit, handleDelete } = rowOperationBlock();
+const { handleDownload, handleShare, handleEdit, handleDelete } =
+  rowOperationBlock();
 
 const pageBlock = () => {
   const pageInfo = reactive({
