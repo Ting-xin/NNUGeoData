@@ -119,6 +119,7 @@ const submit = (formEl) => {
           });
           res.data.password="11111111";//密码
           store.commit("user/setUser", res.data);
+          console.log('test')
           store.commit('catalog/setRoot', res.data.catalogId)
           router.push("/user");
         })

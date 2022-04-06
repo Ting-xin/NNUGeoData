@@ -1,11 +1,11 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="Tips" width="30%">
-    <span>输入文件分享码</span>
+  <el-dialog v-model="dialogVisible" title="输入文件分享码" width="30%">
+    <!-- <span>输入文件分享码</span> -->
     <el-input v-model="shareCode" placeholder="Please input" />
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">X</el-button>
-        <el-button type="primary" @click="shareCommit">√</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="shareCommit">确认</el-button>
       </span>
     </template>
   </el-dialog>
@@ -62,7 +62,7 @@
       </el-input>
     </el-col>
     <el-col :span="2" style="position: relative; text-align: center">
-      <span class="block-vertical-center">排序: </span>
+      <span class="block-vertical-center">Sort By: </span>
     </el-col>
     <el-col :span="2">
       <el-select
@@ -109,13 +109,15 @@
       </span>
     </el-col>
     <el-col :span="20">
-      <!-- <el-breadcrumb
-        :separator-icon="ArrowRight"
-        style="position: absolute; top: 30%"
-      >
-        <el-breadcrumb-item>根目录</el-breadcrumb-item>
-        <el-breadcrumb-item>新建文件夹1</el-breadcrumb-item>
-      </el-breadcrumb> -->
+      <el-breadcrumb :separator-icon="ArrowRight">
+        <el-breadcrumb-item
+          v-for="(item, index) in displayRouteStack"
+          :key="index"
+          ><a @click="intoFolder(item.catalogId, item.name)">{{
+            item.name
+          }}</a></el-breadcrumb-item
+        >
+      </el-breadcrumb>
     </el-col>
     <el-col :span="1">
       <el-image style="height: 22px" :src="displayImg" @click="switchThumnail">
@@ -213,13 +215,15 @@
   </el-row>
   <el-row style="line-height: 10%">
     <div style="margin: 0 auto">
-      <!-- <span>共{{total}}条</span> -->
+      <span class="block-vertical-center" style="left: 35%"
+        >共{{ total }}条</span
+      >
       <el-pagination
         :current-page="pageInfo.page"
         :page-size="pageInfo.pageSize"
         :page-sizes="[10, 15, 20, 25]"
         :total="total"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -240,7 +244,12 @@ import { useStore } from "vuex";
 import Clipboard from "clipboard";
 import { todo } from "@/utils/littleTools.js";
 import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
-import { downloadFile, deleteFile,downloadFolder,updateFile } from "@/api/data";
+import {
+  downloadFile,
+  deleteFile,
+  downloadFolder,
+  updateFile,
+} from "@/api/data";
 import service from "@/utils/request";
 import {
   createCatalog,
@@ -254,10 +263,10 @@ import FileCatalog from "./components/fileDialog";
 const store = useStore();
 const user = reactive(store.getters["user/getUser"]);
 const dialogVisible = ref(false);
-let folderName=ref("新文件夹")
-let folderVis=ref(false)
-function showFolder(){
-  folderVis.value=true
+let folderName = ref("新文件夹");
+let folderVis = ref(false);
+function showFolder() {
+  folderVis.value = true;
 }
 function copywxtap() {
   var clipboard = new Clipboard(".copybtn");
@@ -290,13 +299,16 @@ const listBlock = () => {
           pageInfo
         );
       }
-      list.value = res.data.children;
-      if (list.value) {
+      if (res.data.children) {
+        list.value = res.data.children;
         list.value.forEach((item) => {
           let temp = new Date(item.date);
           item.date = temp.toLocaleString();
         });
+      } else {
+        list.value = [];
       }
+
       total.value = res.data.total;
     } catch (err) {
       ElMessage({
@@ -314,43 +326,16 @@ const listBlock = () => {
   };
 };
 const { catalogId, list, total, freshList } = listBlock();
-function share() {
-  dialogVisible.value = true;
-}
-function shareCommit() {
-  dialogVisible.value = false;
 
-  console.log(catalogId.value);
-  let children 
-  service
-    .get("/catalog/findChildrenData", {
-      params: { catalogId: catalogId.value, id: shareCode.value },
-    })
-    .then((res1) => {
-      children = res1.data;
-      service.post("/catalog/copy", children, {
-    params: {
-      catalogId: catalogId.value,
-    },
-  }).then((x)=>{
-    
-  });
-  
-    });
-  
-}
-let shareCode = ref("");
 const resourceBlock = () => {
-  
   const addFolder = () => {
-    folderVis.value=false;
+    folderVis.value = false;
     createCatalog({
       userId: user.id,
       parentId: catalogId.value,
       name: folderName.value,
     })
       .then((res) => {
-        
         ElMessage({
           message: "新建文件夹成功",
           type: "success",
@@ -364,6 +349,28 @@ const resourceBlock = () => {
         });
       });
   };
+
+  function shareCommit() {
+    dialogVisible.value = false;
+
+    console.log(catalogId.value);
+    let children;
+    service
+      .get("/catalog/findChildrenData", {
+        params: { catalogId: catalogId.value, id: shareCode.value },
+      })
+      .then((res1) => {
+        children = res1.data;
+        service
+          .post("/catalog/copy", children, {
+            params: {
+              catalogId: catalogId.value,
+            },
+          })
+          .then((x) => {});
+      });
+  }
+  let shareCode = ref("");
 
   // 新建文件的对话框的控制
   const fileVisible = ref(false);
@@ -380,7 +387,9 @@ const resourceBlock = () => {
   };
 
   const importResource = () => {};
-
+  const share=()=>{
+    dialogVisible.value=true
+  };
   return {
     addFolder,
     fileVisible,
@@ -388,6 +397,9 @@ const resourceBlock = () => {
     uploadBigFile,
     uploadMultiFiles,
     importResource,
+    showFolder,
+    shareCode,
+    share
   };
 };
 const {
@@ -397,6 +409,9 @@ const {
   uploadBigFile,
   uploadMultiFiles,
   importResource,
+  shareFolder,
+  shareCode,
+  share
 } = resourceBlock();
 
 const searchBlock = () => {
@@ -461,19 +476,36 @@ const imgBlock = () => {
 const { thumnailImg, listImg, displayImg, switchThumnail } = imgBlock();
 
 const controlCatalogBlock = () => {
-  const fileRouteStack = [];
+  const fileRouteStack = reactive([]);
+  const displayRouteStack = reactive([]);
   fileRouteStack.push({
     catalogId: catalogId.value,
     name: store.getters["catalog/getCatalogName"],
   });
+  const displayRoute = (id) => {
+    while (displayRouteStack.length > 0) {
+      displayRouteStack.pop();
+    }
+    for (let i = 0; i < fileRouteStack.length; ++i) {
+      if (fileRouteStack[i].catalogId != id) {
+        displayRouteStack.push(fileRouteStack[i]);
+      } else {
+        displayRouteStack.push(fileRouteStack[i]);
+        break;
+      }
+    }
+  };
+  displayRoute(catalogId.value);
+
   const clickFolder = (index, row) => {
     if (row.type == "folder") {
       catalogId.value = row.id;
-      console.log("conmein")
+      console.log("conmein");
       fileRouteStack.push({
         catalogId: catalogId.value,
         name: row.name,
       });
+      displayRoute(catalogId.value);
       store.commit("catalog/record", [catalogId.value, row.name]);
       freshList();
     } else {
@@ -481,6 +513,18 @@ const controlCatalogBlock = () => {
       todo("click file");
     }
   };
+
+  const intoFolder = (id, name) => {
+    catalogId.value = id;
+    fileRouteStack.push({
+      catalogId: catalogId.value,
+      name: name,
+    });
+    displayRoute(catalogId.value);
+    store.commit("catalog/record", [catalogId.value, name]);
+    freshList();
+  };
+
   const catalogRedo = async () => {
     store.commit("catalog/redo");
     let tempId = store.getters["catalog/getCatalogId"];
@@ -496,6 +540,7 @@ const controlCatalogBlock = () => {
         catalogId: catalogId.value,
         name: tempName,
       });
+      displayRoute(catalogId.value);
       freshList();
     }
   };
@@ -512,18 +557,20 @@ const controlCatalogBlock = () => {
     } else {
       catalogId.value = tempId;
       fileRouteStack.pop();
+      displayRoute(catalogId.value);
       freshList();
     }
   };
 
   return {
-    fileRouteStack,
+    displayRouteStack,
     clickFolder,
+    intoFolder,
     catalogRedo,
     catalogUndo,
   };
 };
-const { fileRouteStack, clickFolder, catalogRedo, catalogUndo } =
+const { displayRouteStack, clickFolder, intoFolder, catalogRedo, catalogUndo } =
   controlCatalogBlock();
 
 const rowOperationBlock = () => {
@@ -657,5 +704,3 @@ freshList();
   transform: translateY(-50%);
 }
 </style>
-
-

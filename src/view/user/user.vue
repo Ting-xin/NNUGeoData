@@ -77,7 +77,17 @@
             >更改密码</el-button
           >
 
-          <el-dialog v-model="dialogFormVisible" title="新密码">
+          
+          <el-button type="primary" size="medium" @click="edit" v-if="!isChange"
+            >编辑信息</el-button
+          >
+          <el-button type="warning" size="medium" @click="edit" v-if="isChange"
+            >完成编辑</el-button
+          >
+        </div>
+      </el-form>
+    </el-card>
+    <el-dialog v-model="dialogFormVisible" title="新密码">
             <el-form :model="loginFormData" :rules="rules">
               <el-form-item
                 label="新密码"
@@ -98,15 +108,6 @@
               </span>
             </template>
           </el-dialog>
-          <el-button type="primary" size="medium" @click="edit" v-if="!isChange"
-            >编辑信息</el-button
-          >
-          <el-button type="warning" size="medium" @click="edit" v-if="isChange"
-            >完成编辑</el-button
-          >
-        </div>
-      </el-form>
-    </el-card>
   </div>
 </template>
 
