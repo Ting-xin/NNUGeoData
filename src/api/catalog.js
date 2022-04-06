@@ -12,10 +12,10 @@ export function getCatalog(id) {
 // 根据 id 和 page信息 查询目录
 export function findByIdAndPage(id, pageInfo) {
   return service({
-    url: '/catalog/findByIdAndPage', 
+    url: '/catalog/findByIdAndPage',
     method: 'post',
     params: {
-      id: id 
+      id: id
     },
     data: pageInfo
   })
@@ -29,7 +29,7 @@ export function findByItems(id, item, content, pageInfo) {
     params:{
       id: id,
       item: item,
-      content: content, 
+      content: content,
     },
     data: pageInfo
   })
@@ -44,4 +44,17 @@ export function createCatalog(data) {
 // 删除文件夹
 export function deleteFolder(data) {
   return service.delete('/catalog', {params: data})
+}
+//编辑文件夹
+export function editCatalog(id, catalogId,name,description){
+  return service({
+    url: '/catalog/update',
+    method: 'post',
+    params: {
+      id: id,
+      catalogId:catalogId,
+      name:name,
+      description:description
+    },
+  })
 }

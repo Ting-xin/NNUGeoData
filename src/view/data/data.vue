@@ -113,7 +113,7 @@
         style="background-color: #eeeeee; width: 100%; line-height: 30px"
         :row-style="{}"
     >
-      <el-table-column sortable :sort-method="nameSort" label="名称">
+      <el-table-column sortable :sort-method="nameSort" label="名称" show-overflow-tooltip>
         <template #header>
           <span class="demonstration">名称</span>
         </template>
@@ -132,7 +132,10 @@
               alt="Safari"
               title="Safari"
           />
-          <span
+          <template v-if="scope.row.isEdit">
+            <el-input v-model="scope.row.name"  class="edit-input" size="small" clearable/>
+          </template>
+          <span v-else
               @click="clickFolder(scope.$index, scope.row)"
               style="margin-left: 15px"
           >
@@ -142,7 +145,14 @@
       </el-table-column>
       <el-table-column sortable :sort-method="dateSort" label="时间" prop="date" />
       <el-table-column sortable :sort-method="clicksSort" label="点击量" prop="clicks" />
-      <el-table-column label="描述" prop="description" />
+      <el-table-column label="描述" prop="description" >
+          <template #default="scope">
+            <template v-if="scope.row.isEdit">
+              <el-input v-model="scope.row.description"  class="edit-input" size="small" clearable/>
+            </template>
+            <span v-else>{{scope.row.description}}</span>
+          </template>
+      </el-table-column>
       <el-table-column>
         <template #header>
           <span class="demonstration">操作</span>
@@ -163,12 +173,21 @@
           >share
           </el-button>
           <el-button
+              v-if="scope.row.isEdit"
+              size="small"
+              type="success"
+              @click="handleEditOk(scope.$index, scope.row)"
+          >Ok
+          </el-button>
+          <el-button
+              v-else
               size="small"
               type="info"
               @click="handleEdit(scope.$index, scope.row)"
               plain
           >Edit
           </el-button>
+
           <el-button
               size="small"
               type="danger"
@@ -208,12 +227,13 @@ import { ref, reactive } from "vue";
 import { useStore } from "vuex";
 
 import { todo } from "@/utils/littleTools.js";
-import { ArrowLeftBold, ArrowRightBold, Search } from "@element-plus/icons";
+import { ArrowLeftBold, ArrowRightBold, Search,Refresh } from "@element-plus/icons";
 import { downloadFile, deleteFile } from "@/api/data";
 import {
   createCatalog,
   deleteFolder,
   getCatalog,
+  editCatalog,
   findByIdAndPage,
   findByItems,
 } from "@/api/catalog";
@@ -240,11 +260,15 @@ const listBlock = () => {
         );
       }
       if(res.data.children) {
+        const tableList = [];
+
         list.value = res.data.children;
         list.value.forEach((item) => {
           let temp = new Date(item.date);
           item.date = temp.toLocaleString();
+          item.isEdit = false;
         });
+        console.log("list.value",list.value);
       } else {
         list.value = []
       }
@@ -383,7 +407,7 @@ const imgBlock = () => {
     switchThumnail,
   };
 };
-const { thumnailImg, listImg, displayImg, switchThumnail } = imgBlock();
+const {displayImg, switchThumnail } = imgBlock();
 
 const controlCatalogBlock = () => {
   const fileRouteStack = reactive([])
@@ -509,12 +533,25 @@ const rowOperationBlock = () => {
     row.isEdit = true;
     // 备份原始数据
     row["oldRow"] = JSON.parse(JSON.stringify(row));
-    ElMessage({
-      message: "开发ing",
-      type: "info",
-    });
-  };
 
+  };
+  const handleEditOk = (index,row) =>{
+    row.isEdit = false;
+    editCatalog(row.id,catalogId.value,row.name,row.description)
+        .then((res)=>{
+          console.log("编辑成功res",res)
+      ElMessage({
+        message: "编辑成功",
+        type: "success",
+      })
+    }).catch((err)=>{
+      ElMessage({
+        message: "编辑失败",
+        type: "error",
+      });
+    })
+
+  };
   const handleDelete = (index, row) => {
     if (row.type === "file") {
       deleteFile({ id: row.id, catalogId: catalogId.value })
@@ -552,10 +589,11 @@ const rowOperationBlock = () => {
     handleDownload,
     handleShare,
     handleEdit,
+    handleEditOk,
     handleDelete,
   };
 };
-const { handleDownload, handleShare, handleEdit, handleDelete } = rowOperationBlock();
+const { handleDownload, handleShare, handleEdit,handleDelete,handleEditOk } = rowOperationBlock();
 
 const pageBlock = () => {
   const pageInfo = reactive({
@@ -597,6 +635,11 @@ freshList();
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+.edit-input{
+  width: 50%;
+  margin-right: 5px ;
+  margin-left: 5px ;
 }
 </style>
 
