@@ -52,6 +52,7 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
+import axios from "axios";
 
 import { strpscript, validateVPassword } from '@/utils/validate.js'
 import { login} from "@/api/user";
@@ -100,7 +101,9 @@ const resetForm = (formEl) => {
 };
 
 const toRegisterPage = () => {
+  
   router.push("/register");
+
 };
 
 // 登录
@@ -114,8 +117,9 @@ const submit = (formEl) => {
             message: "登录成功！",
             type: "success",
           });
-          delete res.data.password
+          res.data.password="11111111";//密码
           store.commit("user/setUser", res.data);
+          console.log('test')
           store.commit('catalog/setRoot', res.data.catalogId)
           router.push("/user");
         })

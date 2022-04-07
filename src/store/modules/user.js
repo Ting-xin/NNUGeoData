@@ -14,6 +14,7 @@ export default {
         },
         setUser(state, user) {
             state.user = user
+            delete user.picture
             storage.set('user', state.user)
         },
     },
@@ -25,6 +26,7 @@ export default {
             return state.user ? state.user.id : ''
         },
         getCatalogId(state) {
+            console.log('catalogId: ', state.user.catlogId)
             return state.user ? state.user.catlogId : ''
         },
         getName(state) {
@@ -35,6 +37,9 @@ export default {
         },
         getDate(state) {
             return state.user ? state.user.date : ''
+        },
+        getPicture(state) {
+            return state.user ? state.user.picture : ''
         },
     }
 }
