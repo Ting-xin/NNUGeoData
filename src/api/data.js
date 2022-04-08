@@ -1,4 +1,4 @@
-import service from '@/utils/request';
+import { service } from '@/utils/request'
 
 // 上传文件
 export function updateFile(data) {

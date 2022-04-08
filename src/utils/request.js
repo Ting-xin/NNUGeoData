@@ -17,6 +17,11 @@ const service = axios.create({
   timeout: 99999
 })
 
+const toolService = axios.create({
+  baseURL: '/tool',
+  timeout: 99999
+})
+
 
 let activeAxios = 0
 let timer
@@ -95,4 +100,4 @@ service.interceptors.response.use(
   }
 )
 
-export default service
+export { service, toolService }

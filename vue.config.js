@@ -10,12 +10,21 @@ module.exports = {
         proxy: {
             // 配置跨域
             '/api':{
-                target:'http://127.0.0.1:8999',
+                target:'http://172.21.212.143:8999',
                 ws:true,
                 timeout:3600000,
                 changOrigin:true,
                 pathRewrite:{
                     '^/api':'',
+                }
+            },
+            '/tool':{
+                target:'http://172.21.212.143:8888',
+                ws:true,
+                timeout:3600000,
+                changOrigin:true,
+                pathRewrite:{
+                    '^/tool':'',
                 }
             },
         }

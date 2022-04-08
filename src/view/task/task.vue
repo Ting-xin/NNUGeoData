@@ -5,7 +5,7 @@
         <h1 style="font-size: 20px">ToolName</h1>
       </el-row>
       <el-row>
-        <el-button type="primary" plain>Load Test Data</el-button>
+        <el-button type="primary" plain @click='test("d2ada262-cf84-4a7c-a5bc-8d2c89a879ef", "fdtwTxlnhka8jY66lOT+kKutgZHnvi4NlnDc7QY5jR4=")'>Load Test Data</el-button>
         <el-button type="primary" plain>Invoke</el-button>
       </el-row>
       <el-divider/>
@@ -43,6 +43,8 @@
 </template>
 <script setup>
 import {ref} from 'vue'
+import { test } from '@/api/toolService.js'
+
 const inputFile = ref(require("@/assets/images/inputFile.png"));
 const downLoadFile = ref(require("@/assets/images/downloadFile.png"))
 </script>

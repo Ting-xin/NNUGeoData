@@ -208,8 +208,8 @@
       </el-table-column>
     </el-table>
   </el-row>
-  <el-row style="line-height: 10%">
-    <div style="margin: 0 auto">
+  <el-row style="padding: 0">
+    <div style="margin: 0 auto; padding: 0">
       <span class="block-vertical-center" style="left: 35%">共{{ total }}条</span>
       <el-pagination
         :current-page="pageInfo.page"
@@ -710,6 +710,12 @@ freshList();
   width: 50%;
   margin-right: 5px;
   margin-left: 5px;
+}
+.el-pagination {
+padding :0px 0 !important;
+}
+.el-row {
+  padding: 8px 0
 }
 </style>
 

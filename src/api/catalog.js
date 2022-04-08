@@ -1,4 +1,4 @@
-import service from '@/utils/request'
+import { service } from '@/utils/request'
 
 // 根据 id 查询目录
 export function getCatalog(id) {
