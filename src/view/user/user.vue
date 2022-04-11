@@ -77,7 +77,7 @@
             >更改密码</el-button
           >
 
-          
+
           <el-button type="primary" size="medium" @click="edit" v-if="!isChange"
             >编辑信息</el-button
           >
@@ -121,9 +121,8 @@ export default {
 import { reactive, computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import axios from "axios";
 import { todo } from "@/utils/littleTools";
-import service from "@/utils/request";
+import {service} from "@/utils/request";
 import { strpscript, validateVPassword } from "@/utils/validate.js";
 import { UserFilled } from "@element-plus/icons";
 import { UploadFilled } from "@element-plus/icons";
@@ -138,13 +137,13 @@ let imgBig=ref(false);
 
 function showImgBig () {
   imgBig.value=true
- 
+
  setTimeout(() => {
    document.addEventListener("click", fooup);
  }, 300);
-    
 
-  
+
+
 };
 function fooup() {
       // 取消鼠标监听事件 菜单栏

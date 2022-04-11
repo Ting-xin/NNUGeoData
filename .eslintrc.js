@@ -6,11 +6,11 @@ module.exports = {
     extends: [
       'plugin:vue/essential',
       'eslint:recommended',
-      '@vue/typescript/recommended',
+      // '@vue/typescript/recommended',
     ],
     parserOptions: {
       ecmaVersion: 2020,
-      parser: "@typescript-eslint/parser"
+      // parser: "@typescript-eslint/parser"
     },
     rules: {
       "@typescript-eslint/no-unused-vars": "off",

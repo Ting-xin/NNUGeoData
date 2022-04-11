@@ -238,7 +238,7 @@ import Clipboard from "clipboard";
 import { todo } from "@/utils/littleTools.js";
 import { ArrowLeftBold, ArrowRightBold, Search, Refresh } from "@element-plus/icons";
 import { downloadFile, deleteFile, downloadFolder, updateFile, } from "@/api/data";
-import service from "@/utils/request";
+import {service} from "@/utils/request";
 import { createCatalog, deleteFolder, getCatalog, editCatalog, findByIdAndPage, findByItems, } from "@/api/catalog";
 import FileCatalog from "./components/fileDialog";
 
@@ -351,7 +351,7 @@ const resourceBlock = () => {
           .then((x) => { });
       });
   }
-  
+
   // todo
   const uploadBigFile = () => {
     todo("upload big file");
