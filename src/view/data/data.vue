@@ -1,6 +1,5 @@
 <template>
   <el-dialog v-model="dialogVisible" title="输入文件分享码" width="30%">
-    <!-- <span>输入文件分享码</span> -->
     <el-input v-model="shareCode" placeholder="Please input" />
     <template #footer>
       <span class="dialog-footer">
@@ -181,7 +180,7 @@
             size="small"
             type="primary"
             @click="handleShare"
-            :data-clipboard-text="scope.row.id"
+            :data-clipboard-text="catalogId + '_' + scope.row.id"
             plain
           >share</el-button>
           <el-button
@@ -237,9 +236,9 @@ import { useStore } from "vuex";
 import Clipboard from "clipboard";
 import { todo } from "@/utils/littleTools.js";
 import { ArrowLeftBold, ArrowRightBold, Search, Refresh } from "@element-plus/icons";
-import { downloadFile, deleteFile, downloadFolder, updateFile, } from "@/api/data";
+import { downloadFile, deleteFile, downloadFolder, } from "@/api/data";
 import service from "@/utils/request";
-import { createCatalog, deleteFolder, getCatalog, editCatalog, findByIdAndPage, findByItems, } from "@/api/catalog";
+import { createCatalog, deleteFolder, editCatalog, findByIdAndPage, findByItems, findChildrenData, shareData} from "@/api/catalog";
 import FileCatalog from "./components/fileDialog";
 
 const store = useStore();
@@ -333,23 +332,35 @@ const resourceBlock = () => {
   };
   function shareCommit() {
     dialogVisible.value = false;
-
-    console.log(catalogId.value);
-    let children;
-    service
-      .get("/catalog/findChildrenData", {
-        params: { catalogId: catalogId.value, id: shareCode.value },
-      })
-      .then((res1) => {
-        children = res1.data;
-        service
-          .post("/catalog/copy", children, {
-            params: {
-              catalogId: catalogId.value,
-            },
+    console.log('shareCommit: ', shareCode.value);
+    let ids = shareCode.value.split('_')
+    findChildrenData(ids[0], ids[1])
+      .then((res) => {
+        console.log('childrenData: ', res)
+        if(res.code === 0) {
+          shareData(catalogId.value, res.data)
+          .then(res => {
+            if(res.code === 0) {
+              ElMessage({
+                message: '分享数据成功',
+                type: 'success'
+              })
+              freshList()
+            }
           })
-          .then((x) => { });
-      });
+        } else {
+          ElMessage({
+            message: '分项码有问题',
+            type: 'error'
+          })
+        }
+      })
+      .catch(err => {
+          ElMessage({
+            message: '分项码有问题',
+            type: 'error'
+          })
+      })
   }
   
   // todo
@@ -452,38 +463,18 @@ const imgBlock = () => {
 const { displayImg, switchThumnail } = imgBlock();
 
 const controlCatalogBlock = () => {
-  const fileRouteStack = reactive([]);
-  const displayRouteStack = reactive([]);
-  fileRouteStack.push({
-    catalogId: catalogId.value,
-    name: store.getters["catalog/getCatalogName"],
-  });
-  const displayRoute = (id) => {
-    while (displayRouteStack.length > 0) {
-      displayRouteStack.pop();
-    }
-    for (let i = 0; i < fileRouteStack.length; ++i) {
-      if (fileRouteStack[i].catalogId != id) {
-        displayRouteStack.push(fileRouteStack[i]);
-      } else {
-        displayRouteStack.push(fileRouteStack[i]);
-        break;
-      }
-    }
+  const displayRouteStack = ref([]);
+  const displayRoute = () => {
+    displayRouteStack.value = store.getters['catalog/getFileStack']
   };
-  displayRoute(catalogId.value);
+  displayRoute();
 
   const clickFolder = (index, row) => {
     if (row.type == "folder") {
       catalogId.value = row.id;
-      console.log("conmein");
-      fileRouteStack.push({
-        catalogId: catalogId.value,
-        name: row.name,
-      });
-      displayRoute(catalogId.value);
       store.commit("catalog/record", [catalogId.value, row.name]);
       freshList();
+      displayRoute();
     } else {
       // todo: 这里可以写一个显示文件的关系表
       todo("click file");
@@ -492,13 +483,9 @@ const controlCatalogBlock = () => {
 
   const intoFolder = (id, name) => {
     catalogId.value = id;
-    fileRouteStack.push({
-      "catalogId": catalogId.value,
-      "name": name
-    })
-    displayRoute(catalogId.value)
-    store.commit("catalog/record", [catalogId.value, name]);
+    store.commit("catalog/undoId", catalogId.value);
     freshList();
+    displayRoute()
   }
 
   const catalogRedo = async () => {
@@ -512,12 +499,8 @@ const controlCatalogBlock = () => {
       });
     } else {
       catalogId.value = tempId;
-      fileRouteStack.push({
-        catalogId: catalogId.value,
-        name: tempName,
-      });
-      displayRoute(catalogId.value);
       freshList();
+      displayRoute();
     }
   };
 
@@ -532,9 +515,8 @@ const controlCatalogBlock = () => {
       });
     } else {
       catalogId.value = tempId;
-      fileRouteStack.pop();
-      displayRoute(catalogId.value);
       freshList();
+      displayRoute();
     }
   };
 
@@ -585,13 +567,19 @@ const rowOperationBlock = () => {
   const handleShare = () => {
     var clipboard = new Clipboard(".copybtn");
     clipboard.on("success", (e) => {
-      alert("复制成功");
+      ElMessage({
+        message: '复制数据 id 成功',
+        type: 'success'
+      })
       // 释放内存
       clipboard.destroy();
     });
     clipboard.on("error", (e) => {
       // 不支持复制
-      Talert("该浏览器不支持自动复制");
+      ElMessage({
+        message: '复制数据 id 失败',
+        type: 'error'
+      })
       // 释放内存
       clipboard.destroy();
     });

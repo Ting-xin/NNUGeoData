@@ -26,7 +26,6 @@ export default {
             return state.user ? state.user.id : ''
         },
         getCatalogId(state) {
-            console.log('catalogId: ', state.user.catlogId)
             return state.user ? state.user.catlogId : ''
         },
         getName(state) {

@@ -33,6 +33,11 @@ export default {
     undo(state) {
       if(state.cursor > 0) 
         state.cursor -= 1
+    },
+    undoId(state, id) {
+      while(state.cursor > 0 && state.stackCatalog[state.cursor] != id) {
+        state.cursor -= 1
+      }
     }
   },
   getters: {
@@ -41,6 +46,24 @@ export default {
     },
     getCatalogName(state) {
       return state.stackName[state.cursor]
-    }
+    },
+    getFileStack(state) {
+      let rootId = state.stackCatalog[0]
+      let res = []
+      for(let i = state.cursor; i >= 0; --i) {
+        if(state.stackCatalog[i] === rootId) {
+          res.push({
+            catalogId: state.stackCatalog[i],
+            name: state.stackName[i]
+          })
+          break 
+        }
+        res.push({
+          catalogId: state.stackCatalog[i],
+          name: state.stackName[i]
+        })
+      }
+      return res.reverse()
+    },
   }
 }
