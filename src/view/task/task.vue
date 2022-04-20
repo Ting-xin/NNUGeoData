@@ -41,7 +41,7 @@
   </el-col>
 
 </template>
-<script setup>
+<script  setup>
 import {ref} from 'vue'
 import { test } from '@/api/toolService.js'
 

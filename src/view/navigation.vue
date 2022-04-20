@@ -23,7 +23,7 @@
       </template>
     </el-header>
     <el-scrollbar>
-    <el-container style="width: 1920px">
+    <el-container style="width: 100%" >
       <el-aside style="width: 120px;">
         <el-menu
             class="el-menu-vertical-demo"
@@ -40,7 +40,7 @@
           <el-menu-item index="help">帮助</el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main style="margin-left: 120px;background-color: white;">
+      <el-main style="margin-left: 120px;background-color: white;min-width: 1100px">
         <router-view ></router-view>
       </el-main>
     </el-container>

@@ -27,14 +27,14 @@
     @freshList="freshList"
   />
   <el-row>
-    <el-col :span="14">
-      <el-button type="info" @click="showFolder">新建文件夹</el-button>
+    <el-col :span="14" >
+      <el-button type="info" @click="showFolder" >新建文件夹</el-button>
       <el-button type="info" @click="changeFileVisible">上传文件</el-button>
       <el-button type="info" @click="uploadMultiFiles">上传批量文件</el-button>
       <el-button type="info" @click="uploadBigFile">上传大文件</el-button>
       <el-button type="info" @click="showShareDialog">引入资源</el-button>
     </el-col>
-    <el-col :span="4">
+    <el-col :span="4" style="margin-left: auto">
       <el-input
         v-model="searchContent"
         placeholder="请输入搜索内容"
@@ -92,31 +92,25 @@
       </el-select>
     </el-col>
   </el-row>
-  <el-row>
-    <el-col :span="1">
+  <el-row style="align-items: center;">
       <span @click="catalogUndo">
         <el-icon size="20px">
-          <arrow-left-bold />
+          <arrow-left-bold/>
         </el-icon>
       </span>
       <span @click="catalogRedo" style="margin-left: 15px">
-        <el-icon size="20px">
-          <arrow-right-bold />
-        </el-icon>
+            <el-icon size="20px">
+              <arrow-right-bold/>
+            </el-icon>
       </span>
-    </el-col>
-    <el-col :span="20">
-      <el-breadcrumb :separator-icon="ArrowRight">
+      <el-breadcrumb :separator-icon="ArrowRight" style="margin-left: 10px">
         <el-breadcrumb-item v-for="(item, index) in displayRouteStack" :key="index">
           <a @click="intoFolder(item.catalogId, item.name)">{{ item.name }}</a>
         </el-breadcrumb-item>
       </el-breadcrumb>
-    </el-col>
-    <el-col :span="1">
-      <el-image style="height: 22px" :src="displayImg" @click="switchThumnail"></el-image>
-    </el-col>
+      <el-image style="height: 22px;margin-left: auto;" :src="displayImg" @click="switchThumnail"></el-image>
   </el-row>
-  <el-row>
+  <el-row >
     <el-table
       :data="list"
       :stripe="true"
@@ -155,7 +149,7 @@
           >{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column sortable :sort-method="dateSort" label="时间" prop="date" />
+      <el-table-column sortable :sort-method="dateSort" label="时间" prop="date" show-overflow-tooltip/>
       <el-table-column sortable :sort-method="clicksSort" label="点击量" prop="clicks" />
       <el-table-column label="描述" prop="description">
         <template #default="scope">
@@ -165,7 +159,7 @@
           <span v-else>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
-      <el-table-column>
+      <el-table-column width="350px">
         <template #header>
           <span class="demonstration">操作</span>
         </template>
@@ -208,9 +202,9 @@
       </el-table-column>
     </el-table>
   </el-row>
-  <el-row style="padding: 0">
-    <div style="margin: 0 auto; padding: 0">
-      <span class="block-vertical-center" style="left: 35%">共{{ total }}条</span>
+  <el-row style="padding: 0;justify-content: center">
+      <div style="margin-right: 50px"><span class="block-vertical-center" >共{{ total }}条</span></div>
+
       <el-pagination
         :current-page="pageInfo.page"
         :page-size="pageInfo.pageSize"
@@ -220,7 +214,6 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
-    </div>
   </el-row>
 </template>
 
@@ -232,7 +225,7 @@ export default {
 
 <script setup>
 import { ElMessage } from "element-plus";
-import { ref, reactive } from "vue";
+import {ref, reactive, onMounted, onBeforeUnmount, onBeforeMount} from "vue";
 import { useStore } from "vuex";
 import Clipboard from "clipboard";
 import { todo } from "@/utils/littleTools.js";
