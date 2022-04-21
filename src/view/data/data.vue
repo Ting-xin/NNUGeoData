@@ -27,13 +27,11 @@
     @freshList="freshList"
   />
   <el-row>
-    <el-col :span="14" >
       <el-button type="info" @click="showFolder" >新建文件夹</el-button>
       <el-button type="info" @click="changeFileVisible">上传文件</el-button>
       <el-button type="info" @click="uploadMultiFiles">上传批量文件</el-button>
       <el-button type="info" @click="uploadBigFile">上传大文件</el-button>
       <el-button type="info" @click="showShareDialog">引入资源</el-button>
-    </el-col>
     <el-col :span="4" style="margin-left: auto">
       <el-input
         v-model="searchContent"
