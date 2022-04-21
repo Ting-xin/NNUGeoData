@@ -19,13 +19,13 @@ module.exports = {
                     '^/api':'',
                 }
             },
-            '/tool':{
+            '/api2':{
                 target:'http://geomodeling.njnu.edu.cn/',
                 ws:true,
                 timeout:3600000,
                 changOrigin:true,
                 pathRewrite:{
-                    '^/tool':'',
+                    '^/api2':'',
                 }
             },
         }

@@ -1,7 +1,7 @@
 <template>
   <el-row>
     <el-button>创建工具</el-button>
-    <el-button @click="invokeTool">调用工具</el-button>
+    <el-button @click="invokeTool(toolId)">调用工具</el-button>
   </el-row>
   <el-row>
   </el-row>
@@ -120,6 +120,8 @@
   </el-row>
 
 </template>
+
+
 <script setup>
 import { reactive, ref ,toRefs} from 'vue'
 import RichTextEditor from "./components/richTextEditor"
@@ -207,8 +209,17 @@ const {
 };
 
 //工具调用
-const invokeTool = () =>{
-    router.push("/tool/invokeTool")
+const toolId = ref('');
+toolId.value = "123"
+const invokeTool = (id) =>{
+    let pageInvokeTool = router.resolve({
+        path:"/invokeTool",
+        query:{
+          id:id
+        }
+    });
+    window.open(pageInvokeTool.href,'_blank');
+
 }
 </script>
 <style scoped>
