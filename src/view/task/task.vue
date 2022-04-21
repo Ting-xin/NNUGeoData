@@ -1,6 +1,7 @@
 <template>
-  <el-col :span="8" >
-    <el-card style="height: 81vh;">
+  <el-row>
+  <el-col  :span="5">
+    <el-card style="height: 79vh">
       <el-row>
         <h1 style="font-size: 20px">ToolName</h1>
       </el-row>
@@ -12,8 +13,8 @@
       <h1 style="font-size: 20px">Introduction</h1>
     </el-card>
   </el-col>
-  <el-col :span="16" >
-    <el-card style="height: 81vh;width:75vw;margin-left: 20px">
+  <el-col  :span="19">
+    <el-card style="height: 79vh;margin-left: 20px">
       <el-row class="invokeTitle">Input</el-row>
       <el-row>
         <el-col :span="10">Input data, can be used to run data processing services</el-col>
@@ -39,7 +40,7 @@
       </el-row>
     </el-card>
   </el-col>
-
+  </el-row>
 </template>
 <script  setup>
 import {ref} from 'vue'

@@ -4,7 +4,6 @@
     <el-button @click="invokeTool">调用工具</el-button>
   </el-row>
   <el-row>
-<!--    <router-view ></router-view>-->
   </el-row>
 <el-row>
   <el-col :span="24" >
