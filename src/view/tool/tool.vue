@@ -1,10 +1,5 @@
 <template>
-  <el-row>
-    <el-button>创建工具</el-button>
-    <el-button @click="invokeTool(toolId)">调用工具</el-button>
-  </el-row>
-  <el-row>
-  </el-row>
+  <el-row></el-row>
 <el-row>
   <el-col :span="24" >
     <el-steps :active="active" finish-status="success" simple>

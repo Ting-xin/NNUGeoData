@@ -24,7 +24,7 @@
     </el-header>
     <el-scrollbar>
     <el-container style="width: 100%" >
-      <el-aside style="width: 120px;">
+      <el-aside style="width: 130px;">
         <el-menu
             class="el-menu-vertical-demo"
             background-color="#3256a7"
@@ -34,13 +34,19 @@
         >
           <el-row></el-row>
           <el-menu-item index="data">数据</el-menu-item>
-          <el-menu-item index="tool">工具</el-menu-item>
+          <el-sub-menu style="justify-content: flex-start">
+            <template #title>
+              <span>工具</span>
+            </template>
+            <el-menu-item style="padding-left:20px" index="tool">创建工具</el-menu-item>
+            <el-menu-item style="padding-left:20px" index="invokeTool">调用工具</el-menu-item>
+          </el-sub-menu>
           <el-menu-item index="task">任务</el-menu-item>
           <el-menu-item index="project">项目</el-menu-item>
           <el-menu-item index="help">帮助</el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main style="margin-left: 120px;background-color: white;min-width: 1100px">
+      <el-main style="margin-left: 130px;background-color: white;min-width: 1100px">
         <router-view ></router-view>
       </el-main>
     </el-container>
@@ -111,9 +117,12 @@ const goLogin=()=>{
 .el-menu-vertical-demo{
   margin-top: 70px;
   height: calc(100vh - 70px);
+}
+/deep/.el-menu-item{
+  font-size: 17px;
   padding-left: 20px;
 }
-.el-menu-item{
+/deep/.el-sub-menu__title{
   font-size: 17px;
 }
 
