@@ -24,39 +24,41 @@
     </el-header>
     <el-scrollbar>
     <el-container style="width: 100%" >
-      <el-aside style="width: 130px;">
+      <el-aside style="width: 150px;">
         <el-menu
             class="el-menu-vertical-demo"
-            background-color="#3256a7"
+            background-color="#4c6cb2"
             text-color="#fff"
             active-text-color="#ffd04b"
+            :collapse="isCollapse"
             @select="handleSelect"
         >
-          <el-row></el-row>
-          <el-menu-item index="data">数据</el-menu-item>
+          <el-row class="collapse-nav"><el-icon class="icon-collapse" @click="handleCollapse" :size="25" style="color: white"><Fold/></el-icon></el-row>
+          <el-menu-item index="data">
+            <img :src="databaseIcon" style="width: 1.5em;margin-right: 10px">
+            <span v-show="navNameVisible">数据</span>
+          </el-menu-item>
           <el-sub-menu style="justify-content: flex-start">
             <template #title>
-              <span>工具</span>
+              <img :src="settingIcon" style="width: 1.5em;margin-right: 10px">
+              <span v-show="navNameVisible">工具</span>
             </template>
-            <el-menu-item style="padding-left:20px" index="tool">创建工具</el-menu-item>
-            <el-menu-item style="padding-left:20px" index="invokeTool">调用工具</el-menu-item>
+            <el-menu-item style="padding-left:20px" index="tool"><img :src="addIcon" style="width: 1.5em;margin-right: 10px;"><span v-show="navNameVisible">创建工具</span></el-menu-item>
+            <el-menu-item style="padding-left:20px" index="invokeTool"><img :src="useToolIcon" style="width: 1.5em;margin-right: 10px"><span v-show="navNameVisible">调用工具</span></el-menu-item>
           </el-sub-menu>
-          <el-menu-item index="task">任务</el-menu-item>
-          <el-menu-item index="project">项目</el-menu-item>
-          <el-menu-item index="help">帮助</el-menu-item>
+          <el-menu-item index="task"><img :src="taskIcon" style="width: 1.5em;margin-right: 10px"><span v-show="navNameVisible">任务</span></el-menu-item>
+          <el-menu-item index="project"><img :src="projectIcon" style="width: 1.5em;margin-right: 10px"><span v-show="navNameVisible">项目</span></el-menu-item>
+          <el-menu-item index="help"><img :src="helpIcon" style="width: 1.5em;margin-right: 10px"><span v-show="navNameVisible">帮助</span></el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main style="margin-left: 130px;background-color: white;min-width: 1100px">
-        <router-view ></router-view>
+      <el-main style="background-color: white;min-width: 1100px;padding: 0" :style="marginLeft">
+        <router-view @setMainMargin="setMainMargin"></router-view>
       </el-main>
     </el-container>
     </el-scrollbar>
     <el-footer>
-      <h2 class="footerTop">
-        <i>Open Geographic Modeling and Simulation</i>
-      </h2>
       <p class="footerBottom">
-        Copyright © 2011-2021 OpenGMS. All rights reserved.
+        Copyright © 2011-2022 OpenGMS. All rights reserved.
       </p>
     </el-footer>
   </el-container>
@@ -72,12 +74,34 @@ export default {
 
 <script setup>
 import { computed, defineComponent, ref } from "vue";
-import { User as UserIcon } from "@element-plus/icons";
+import { User as UserIcon,Fold } from "@element-plus/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
 const store = useStore();
 const router = useRouter();
+
+const setMainMargin = (data) => {
+  marginLeft.value = data
+  isCollapse.value = true
+}
+
+const marginLeft = ref('')
+marginLeft.value = "margin-left: 150px"
+const isCollapse = ref(false)
+const handleCollapse = () => {
+  if(isCollapse.value == false){
+    isCollapse.value = true
+    navNameVisible.value = false
+    marginLeft.value = "margin-left: 64px"
+  }else {
+    isCollapse.value = false
+    navNameVisible.value = true
+    marginLeft.value = "margin-left: 150px"
+  }
+}
+const navNameVisible = ref(true)
+
 const imgUrl = ref(require("@/assets/images/nnu_geodata.png"));
 const visible = computed(() => {
   let id = store.getters['user/getUserId']
@@ -105,8 +129,23 @@ const goRegister=()=>{
 const goLogin=()=>{
   router.push("/login")
 }
+
+const addIcon = ref(require("@/assets/myicon/add.png"))
+const useToolIcon = ref(require("@/assets/myicon/usetool.png"))
+const settingIcon = ref(require("@/assets/myicon/setting.png"))
+const databaseIcon = ref(require("@/assets/myicon/database.png"))
+const taskIcon = ref(require("@/assets/myicon/task.png"))
+const helpIcon = ref(require("@/assets/myicon/help.png"))
+const projectIcon = ref(require("@/assets/myicon/project.png"))
 </script>
 <style scoped>
+.collapse-nav{
+  justify-content: center;
+  background-color: #3256a7;
+}
+.icon-collapse{
+  cursor: pointer;
+}
 .img {
   width: 70px;
   height: 70px;
@@ -149,15 +188,11 @@ const goLogin=()=>{
   height: 70px;
 }
 .el-footer{
-  height: 60px;
+  height: 30px;
   background-color: #fefded;
-  padding-top: 15px;
-}
-.footerTop {
-  text-align: center;
-  color: #7e6666;
-  font-weight: bold;
-  font-size: 18px;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .footerBottom {

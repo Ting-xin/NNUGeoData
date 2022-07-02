@@ -14,6 +14,7 @@ import Project from '@/view/project/project.vue'
 import Help from '@/view/help/help.vue'
 import { ElMessageBox } from 'element-plus';
 import InvokeTool from "@/view/tool/invokeTool"
+import ProjectItem from "@/view/project/components/projectItem"
 
 const routes = [
     {
@@ -82,6 +83,10 @@ const routes = [
                 path:'/invokeTool',
                 name:'invokeTool',
                 component:InvokeTool
+            }, {
+                path:'/projectItem',
+                name:'projectItem',
+                component:ProjectItem
             }
         ]
     }

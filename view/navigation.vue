@@ -141,13 +141,6 @@ const goLogin=()=>{
 /*  height: 80px;*/
 /*}*/
 
-.footerTop {
-  text-align: center;
-  color: #7e6666;
-  font-weight: bold;
-  margin-top: 15px;
-  font-size: 18px;
-}
 
 .footerBottom {
   text-align: center;

@@ -1,96 +1,97 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="输入文件分享码" width="30%">
-    <!-- <span>输入文件分享码</span> -->
-    <el-input v-model="shareCode" placeholder="Please input" />
-    <template #footer>
+  <div class="padding-all">
+    <el-dialog v-model="dialogVisible" title="输入文件分享码" width="30%">
+      <!-- <span>输入文件分享码</span> -->
+      <el-input v-model="shareCode" placeholder="Please input" />
+      <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="shareCommit">确认</el-button>
       </span>
-    </template>
-  </el-dialog>
-  <el-dialog v-model="folderVis" title="Tips" width="30%">
-    <span>输入名称</span>
-    <el-input v-model="folderName" placeholder="Please input" />
-    <template #footer>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="folderVis" title="Tips" width="30%">
+      <span>输入名称</span>
+      <el-input v-model="folderName" placeholder="Please input" />
+      <template #footer>
       <span class="dialog-footer">
         <el-button @click="folderVis = false">X</el-button>
         <el-button type="primary" @click="addFolder">√</el-button>
       </span>
-    </template>
-  </el-dialog>
-  <FileCatalog
-    :visible="fileVisible"
-    :catalogId="catalogId"
-    :pageInfo="pageInfo"
-    @changeVisible="changeFileVisible"
-    @freshList="freshList"
-  />
-  <el-row>
+      </template>
+    </el-dialog>
+    <FileCatalog
+        :visible="fileVisible"
+        :catalogId="catalogId"
+        :pageInfo="pageInfo"
+        @changeVisible="changeFileVisible"
+        @freshList="freshList"
+    />
+    <el-row>
       <el-button type="info" @click="showFolder" >新建文件夹</el-button>
       <el-button type="info" @click="changeFileVisible">上传文件</el-button>
       <el-button type="info" @click="uploadMultiFiles">上传批量文件</el-button>
       <el-button type="info" @click="uploadBigFile">上传大文件</el-button>
       <el-button type="info" @click="showShareDialog">引入资源</el-button>
-    <el-col :span="4" style="margin-left: auto">
-      <el-input
-        v-model="searchContent"
-        placeholder="请输入搜索内容"
-        class="input-with-select"
-        @click="freshList"
-      >
-        <template #prepend>
-          <el-select v-model="searchItem" placeholder="Select" style="width: 80px">
-            <el-option
-              v-for="item in searchOptions"
+      <el-col :span="4" style="margin-left: auto">
+        <el-input
+            v-model="searchContent"
+            placeholder="请输入搜索内容"
+            class="input-with-select"
+            @click="freshList"
+        >
+          <template #prepend>
+            <el-select v-model="searchItem" placeholder="Select" style="width: 80px">
+              <el-option
+                  v-for="item in searchOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              ></el-option>
+            </el-select>
+          </template>
+          <template #append>
+            <el-button :icon="Search" @click="freshList"></el-button>
+          </template>
+        </el-input>
+      </el-col>
+      <el-col :span="2" style="position: relative; text-align: center">
+        <span class="block-vertical-center">Sort By:</span>
+      </el-col>
+      <el-col :span="2">
+        <el-select
+            v-model="pageInfo.sortField"
+            class="m-2"
+            placeholder="Select"
+            size="large"
+            @change="freshList"
+        >
+          <el-option
+              v-for="item in sortOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
-            ></el-option>
-          </el-select>
-        </template>
-        <template #append>
-          <el-button :icon="Search" @click="freshList"></el-button>
-        </template>
-      </el-input>
-    </el-col>
-    <el-col :span="2" style="position: relative; text-align: center">
-      <span class="block-vertical-center">Sort By:</span>
-    </el-col>
-    <el-col :span="2">
-      <el-select
-        v-model="pageInfo.sortField"
-        class="m-2"
-        placeholder="Select"
-        size="large"
-        @change="freshList"
-      >
-        <el-option
-          v-for="item in sortOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        ></el-option>
-      </el-select>
-    </el-col>
-    <el-col :span="1">
-      <el-select
-        v-model="pageInfo.asc"
-        class="m-2"
-        placeholder="Select"
-        size="large"
-        @change="freshList"
-      >
-        <el-option
-          v-for="item in ascOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        ></el-option>
-      </el-select>
-    </el-col>
-  </el-row>
-  <el-row style="align-items: center;">
+          ></el-option>
+        </el-select>
+      </el-col>
+      <el-col :span="1">
+        <el-select
+            v-model="pageInfo.asc"
+            class="m-2"
+            placeholder="Select"
+            size="large"
+            @change="freshList"
+        >
+          <el-option
+              v-for="item in ascOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          ></el-option>
+        </el-select>
+      </el-col>
+    </el-row>
+    <el-row style="align-items: center;">
       <span @click="catalogUndo">
         <el-icon size="20px">
           <arrow-left-bold/>
@@ -107,112 +108,113 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
       <el-image style="height: 22px;margin-left: auto;" :src="displayImg" @click="switchThumnail"></el-image>
-  </el-row>
-  <el-row >
-    <el-table
-      :data="list"
-      :stripe="true"
-      :default-sort="{ prop: 'date', order: 'descending' }"
-      size="large"
-      fit="false"
-      style="background-color: #eeeeee; width: 100%; line-height: 30px"
-      :row-style="{}"
-    >
-      <el-table-column sortable :sort-method="nameSort" label="名称" show-overflow-tooltip>
-        <template #header>
-          <span class="demonstration">名称</span>
-        </template>
-        <template #default="scope">
-          <img
-            v-if="scope.row.type === 'folder'"
-            src="@/assets/images/folder.png"
-            height="24"
-            alt="Safari"
-            title="Safari"
-          />
-          <img
-            v-if="scope.row.type === 'file'"
-            src="@/assets/images/file.png"
-            height="24"
-            alt="Safari"
-            title="Safari"
-          />
-          <template v-if="scope.row.isEdit">
-            <el-input v-model="scope.row.name" class="edit-input" size="small" clearable />
+    </el-row>
+    <el-row >
+      <el-table
+          :data="list"
+          :stripe="true"
+          :default-sort="{ prop: 'date', order: 'descending' }"
+          size="large"
+          fit="false"
+          style="background-color: #eeeeee; width: 100%; line-height: 30px"
+          :row-style="{}"
+      >
+        <el-table-column sortable :sort-method="nameSort" label="名称" show-overflow-tooltip>
+          <template #header>
+            <span class="demonstration">名称</span>
           </template>
-          <span
-            v-else
-            @click="clickFolder(scope.$index, scope.row)"
-            style="margin-left: 15px"
-          >{{ scope.row.name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column sortable :sort-method="dateSort" label="时间" prop="date" show-overflow-tooltip/>
-      <el-table-column sortable :sort-method="clicksSort" label="点击量" prop="clicks" />
-      <el-table-column label="描述" prop="description">
-        <template #default="scope">
-          <template v-if="scope.row.isEdit">
-            <el-input v-model="scope.row.description" class="edit-input" size="small" clearable />
+          <template #default="scope">
+            <img
+                v-if="scope.row.type === 'folder'"
+                src="@/assets/images/folder.png"
+                height="24"
+                alt="Safari"
+                title="Safari"
+            />
+            <img
+                v-if="scope.row.type === 'file'"
+                src="@/assets/images/file.png"
+                height="24"
+                alt="Safari"
+                title="Safari"
+            />
+            <template v-if="scope.row.isEdit">
+              <el-input v-model="scope.row.name" class="edit-input" size="small" clearable />
+            </template>
+            <span
+                v-else
+                @click="clickFolder(scope.$index, scope.row)"
+                style="margin-left: 15px"
+            >{{ scope.row.name }}</span>
           </template>
-          <span v-else>{{ scope.row.description }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column width="350px">
-        <template #header>
-          <span class="demonstration">操作</span>
-        </template>
-        <template #default="scope">
-          <el-button
-            size="small"
-            type="success"
-            @click="handleDownload(scope.$index, scope.row)"
-            plain
-          >download</el-button>
-          <el-button
-            class="copybtn"
-            size="small"
-            type="primary"
-            @click="handleShare"
-            :data-clipboard-text="scope.row.id"
-            plain
-          >share</el-button>
-          <el-button
-            v-if="scope.row.isEdit"
-            size="small"
-            type="success"
-            @click="handleEditOk(scope.$index, scope.row)"
-          >Ok</el-button>
-          <el-button
-            v-else
-            size="small"
-            type="info"
-            @click="handleEdit(scope.$index, scope.row)"
-            plain
-          >Edit</el-button>
+        </el-table-column>
+        <el-table-column sortable :sort-method="dateSort" label="时间" prop="date" show-overflow-tooltip/>
+        <el-table-column sortable :sort-method="clicksSort" label="点击量" prop="clicks" />
+        <el-table-column label="描述" prop="description">
+          <template #default="scope">
+            <template v-if="scope.row.isEdit">
+              <el-input v-model="scope.row.description" class="edit-input" size="small" clearable />
+            </template>
+            <span v-else>{{ scope.row.description }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="350px">
+          <template #header>
+            <span class="demonstration">操作</span>
+          </template>
+          <template #default="scope">
+            <el-button
+                size="small"
+                type="success"
+                @click="handleDownload(scope.$index, scope.row)"
+                plain
+            >download</el-button>
+            <el-button
+                class="copybtn"
+                size="small"
+                type="primary"
+                @click="handleShare"
+                :data-clipboard-text="scope.row.id"
+                plain
+            >share</el-button>
+            <el-button
+                v-if="scope.row.isEdit"
+                size="small"
+                type="success"
+                @click="handleEditOk(scope.$index, scope.row)"
+            >Ok</el-button>
+            <el-button
+                v-else
+                size="small"
+                type="info"
+                @click="handleEdit(scope.$index, scope.row)"
+                plain
+            >Edit</el-button>
 
-          <el-button
-            size="small"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            plain
-          >delete</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-  </el-row>
-  <el-row style="padding: 0;justify-content: center">
+            <el-button
+                size="small"
+                type="danger"
+                @click="handleDelete(scope.$index, scope.row)"
+                plain
+            >delete</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-row>
+    <el-row style="padding: 0;justify-content: center">
       <div style="margin-right: 50px"><span class="block-vertical-center" >共{{ total }}条</span></div>
 
       <el-pagination
-        :current-page="pageInfo.page"
-        :page-size="pageInfo.pageSize"
-        :page-sizes="[10, 15, 20, 25]"
-        :total="total"
-        layout="sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
+          :current-page="pageInfo.page"
+          :page-size="pageInfo.pageSize"
+          :page-sizes="[10, 15, 20, 25]"
+          :total="total"
+          layout="sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
       />
-  </el-row>
+    </el-row>
+  </div>
 </template>
 
 <script>
@@ -686,6 +688,9 @@ freshList();
 </script>
 
 <style scoped>
+.padding-all{
+  padding: 20px;
+}
 .el-table {
   --el-table-header-bg-color: #f5f6f7;
 }
